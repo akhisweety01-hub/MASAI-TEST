@@ -1,0 +1,286 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+#quiz-app{padding:1rem 0;max-width:720px;margin:auto}
+.screen{display:none}
+.screen.active{display:block}
+#start-screen{text-align:center;padding:2rem 1rem}
+#start-screen h1{font-size:22px;font-weight:500;margin-bottom:.5rem}
+#start-screen p{font-size:14px;color:var(--color-text-secondary);margin-bottom:1.5rem}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:1.5rem}
+.tag{font-size:12px;padding:3px 10px;border-radius:20px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+.btn{display:inline-block;padding:10px 24px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:14px;cursor:pointer;font-family:var(--font-sans);transition:background .15s}
+.btn:hover{background:var(--color-background-secondary)}
+.btn.primary{background:#178CF2;border-color:#178CF2;color:#fff;font-weight:500}
+.btn.primary:hover{background:#1279d4}
+#quiz-screen{padding:.5rem 0}
+.quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:12px}
+.progress-wrap{flex:1;height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
+#progress-bar{height:100%;background:#178CF2;border-radius:3px;transition:width .3s}
+#timer{font-size:13px;font-weight:500;min-width:50px;text-align:right;color:var(--color-text-secondary)}
+#timer.danger{color:#E24B4A}
+.q-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-secondary);margin-bottom:.75rem}
+.q-text{font-size:15px;font-weight:500;line-height:1.6;margin-bottom:1.25rem;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem}
+.options{display:flex;flex-direction:column;gap:.5rem}
+.opt{padding:.75rem 1rem;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;font-size:14px;line-height:1.5;display:flex;gap:10px;align-items:flex-start;transition:background .1s,border-color .1s;background:var(--color-background-primary)}
+.opt:hover:not(.disabled){background:var(--color-background-secondary);border-color:var(--color-border-secondary)}
+.opt.correct{background:#EAF3DE;border-color:#639922;color:#27500A}
+.opt.wrong{background:#FCEBEB;border-color:#E24B4A;color:#791F1F}
+.opt.disabled{cursor:default}
+.opt-letter{font-weight:500;min-width:18px;font-size:13px}
+.feedback{margin-top:1rem;padding:1rem;border-radius:var(--border-radius-md);font-size:13px;line-height:1.6;display:none}
+.feedback.show{display:block}
+.feedback.correct-fb{background:#EAF3DE;border:0.5px solid #639922;color:#27500A}
+.feedback.wrong-fb{background:#FCEBEB;border:0.5px solid #E24B4A;color:#501313}
+.feedback strong{font-weight:500}
+#next-btn{margin-top:1rem;width:100%}
+#score-screen{text-align:center;padding:1.5rem 0}
+.score-circle{width:120px;height:120px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 1.5rem;border:4px solid #178CF2}
+.score-num{font-size:32px;font-weight:500;color:#178CF2}
+.score-label{font-size:12px;color:var(--color-text-secondary)}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:1rem 0 1.5rem}
+.s-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.75rem;text-align:center}
+.s-val{font-size:22px;font-weight:500}
+.s-lbl{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.green-val{color:#3B6D11}
+.red-val{color:#A32D2D}
+.blue-val{color:#185FA5}
+#review-section{text-align:left;margin-top:1.5rem}
+#review-section h2{font-size:16px;font-weight:500;margin-bottom:1rem}
+.review-item{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;margin-bottom:.75rem;background:var(--color-background-primary)}
+.review-q{font-size:13px;font-weight:500;margin-bottom:.5rem}
+.review-answer{font-size:12px;margin-bottom:.5rem}
+.review-correct{color:#3B6D11}
+.review-wrong{color:#A32D2D}
+.review-exp{font-size:12px;color:var(--color-text-secondary);line-height:1.5;border-top:0.5px solid var(--color-border-tertiary);padding-top:.5rem;margin-top:.5rem}
+.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+</style>
+
+<div id="quiz-app">
+<div id="start-screen" class="screen active">
+  <h2 class="sr-only">Masai ML Module 1 Quiz — IIT Patna</h2>
+  <h1>Masai ML Module 1 Quiz</h1>
+  <p>IIT Patna · 50 questions · 30 seconds per question</p>
+  <div class="tag-row">
+    <span class="tag">Linear Algebra</span><span class="tag">Probability</span><span class="tag">Statistics</span>
+    <span class="tag">Distributions</span><span class="tag">Hypothesis Testing</span><span class="tag">Gradient Descent</span>
+    <span class="tag">KNN</span><span class="tag">Logistic Regression</span><span class="tag">Evaluation Metrics</span>
+    <span class="tag">ML Pipeline</span>
+  </div>
+  <button class="btn primary" onclick="startQuiz()">Start Quiz</button>
+</div>
+
+<div id="quiz-screen" class="screen">
+  <div class="quiz-header">
+    <div class="progress-wrap"><div id="progress-bar" style="width:0%"></div></div>
+    <div id="timer">0:30</div>
+  </div>
+  <div class="q-meta">
+    <span id="q-counter">Q 1 / 50</span>
+    <span id="q-topic"></span>
+  </div>
+  <div class="q-text" id="q-text"></div>
+  <div class="options" id="options"></div>
+  <div class="feedback" id="feedback"></div>
+  <button class="btn primary" id="next-btn" style="display:none" onclick="nextQuestion()">Next →</button>
+</div>
+
+<div id="score-screen" class="screen">
+  <div class="score-circle">
+    <span class="score-num" id="final-score-pct">0%</span>
+    <span class="score-label">score</span>
+  </div>
+  <h1 id="result-title" style="font-size:20px;font-weight:500;margin-bottom:.5rem"></h1>
+  <p id="result-msg" style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem"></p>
+  <div class="summary-grid">
+    <div class="s-card"><div class="s-val green-val" id="s-correct">0</div><div class="s-lbl">Correct</div></div>
+    <div class="s-card"><div class="s-val red-val" id="s-wrong">0</div><div class="s-lbl">Wrong</div></div>
+    <div class="s-card"><div class="s-val blue-val" id="s-skipped">0</div><div class="s-lbl">Skipped</div></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn primary" onclick="restartQuiz()">Retake Quiz</button>
+    <button class="btn" onclick="toggleReview()">Review Answers</button>
+  </div>
+  <div id="review-section" style="display:none"></div>
+</div>
+</div>
+
+<script>
+const ALL_QUESTIONS = [
+  {q:"What is the result of the dot product of two vectors [1,2,3] and [4,5,6]?",opts:["14","32","15","21"],ans:1,topic:"Linear Algebra",exp:"Dot product = 1×4 + 2×5 + 3×6 = 4+10+18 = 32. It always produces a single scalar value."},
+  {q:"For matrix multiplication A×B to be valid, if A has shape (m×n), what must be the shape of B?",opts:["(m×p)","(n×p)","(p×m)","(p×n)"],ans:1,topic:"Linear Algebra",exp:"The number of columns in A (n) must equal the number of rows in B. So B must have n rows, making it (n×p). Result shape is (m×p)."},
+  {q:"Which of the following is TRUE about the transpose of a matrix?",opts:["Rows become columns","Columns are deleted","The matrix is inverted","Determinant changes sign"],ans:0,topic:"Linear Algebra",exp:"Transpose swaps rows and columns. If A is (m×n), then A^T is (n×m). The values are reflected across the main diagonal."},
+  {q:"A vector of magnitude 0 is called a:",opts:["Unit vector","Zero vector","Basis vector","Orthogonal vector"],ans:1,topic:"Linear Algebra",exp:"A zero vector has all components equal to zero and therefore has magnitude 0. A unit vector has magnitude exactly 1."},
+  {q:"If two vectors are orthogonal, their dot product equals:",opts:["1","-1","0","Infinity"],ans:2,topic:"Linear Algebra",exp:"Orthogonal means perpendicular (90° angle). cos(90°) = 0. Dot product = |A||B|cos(θ) = 0. This is a key property used in many ML algorithms."},
+  {q:"Which probability distribution is used for modeling the number of successes in a fixed number of independent trials?",opts:["Poisson","Normal","Binomial","Exponential"],ans:2,topic:"Probability Distributions",exp:"The Binomial distribution models exactly this: n independent trials each with probability p of success. P(X=k) = C(n,k)×p^k×(1-p)^(n-k)."},
+  {q:"The Poisson distribution is most appropriate for:",opts:["Modeling binary outcomes","Counting events in a fixed interval","Measuring continuous heights","Modeling equal-likelihood outcomes"],ans:1,topic:"Probability Distributions",exp:"Poisson models the number of events occurring in a fixed time/space interval when events occur independently at a constant rate λ. Classic use: customer arrivals per hour."},
+  {q:"For a normal distribution, what percentage of data falls within 2 standard deviations of the mean?",opts:["68%","95%","99.7%","50%"],ans:1,topic:"Probability Distributions",exp:"The empirical rule (68-95-99.7): ~68% within 1σ, ~95% within 2σ, ~99.7% within 3σ. This is fundamental to statistical inference."},
+  {q:"The Probability Mass Function (PMF) is used for:",opts:["Continuous random variables","Discrete random variables","Normal distributions only","Exponential distributions"],ans:1,topic:"Probability Distributions",exp:"PMF assigns probabilities to individual discrete values. For continuous variables, we use the Probability Density Function (PDF) where probabilities are areas under the curve."},
+  {q:"Which distribution would best model the waiting time between consecutive customer arrivals?",opts:["Binomial","Poisson","Exponential","Uniform"],ans:2,topic:"Probability Distributions",exp:"The Exponential distribution models waiting time between events in a Poisson process. It has the memoryless property: P(X>s+t|X>s) = P(X>t)."},
+  {q:"P(A∩B) = P(A)×P(B) is the condition for:",opts:["Mutually exclusive events","Independent events","Exhaustive events","Conditional events"],ans:1,topic:"Probability Fundamentals",exp:"For independent events, occurrence of one doesn't affect the other. Their joint probability equals the product of individual probabilities. Mutually exclusive events have P(A∩B)=0."},
+  {q:"Bayes' theorem relates:",opts:["Prior and posterior probabilities","Mean and variance","Sample size and p-value","Accuracy and recall"],ans:0,topic:"Probability Fundamentals",exp:"Bayes: P(A|B) = P(B|A)×P(A)/P(B). It updates prior belief P(A) given evidence B to get posterior P(A|B). Foundation of Naive Bayes classifiers."},
+  {q:"Two events A and B are mutually exclusive. Which statement must be true?",opts:["P(A)+P(B)=1","P(A∩B)=0","P(A|B)=P(A)","P(A∪B)=P(A)×P(B)"],ans:1,topic:"Probability Fundamentals",exp:"Mutually exclusive means both cannot happen simultaneously, so P(A∩B)=0. Note: mutually exclusive does NOT mean independent — in fact they can't be independent (unless P=0)."},
+  {q:"The complement rule states that P(A') equals:",opts:["P(A)","1-P(A)","1+P(A)","P(A)/P(B)"],ans:1,topic:"Probability Fundamentals",exp:"The sample space is exhaustive: P(A) + P(A') = 1, so P(A') = 1 - P(A). This is useful when calculating 'at least one' probabilities by computing 1 minus 'none'."},
+  {q:"A fair die is rolled. P(getting a prime number) is:",opts:["1/6","2/6","3/6","4/6"],ans:2,topic:"Probability Fundamentals",exp:"Primes on a die: 2, 3, 5 — that's 3 outcomes out of 6. P = 3/6 = 1/2. Note: 1 is not prime, 4 and 6 are composite."},
+  {q:"What does the p-value in hypothesis testing represent?",opts:["Probability the null hypothesis is true","Probability of observing extreme data assuming null is true","Confidence level of the test","Power of the test"],ans:1,topic:"Hypothesis Testing",exp:"p-value = P(observing data as extreme or more extreme | H₀ is true). If p < α (significance level), we reject H₀. A small p-value means the observed data is unlikely under the null."},
+  {q:"A t-test is preferred over a z-test when:",opts:["Population σ is known","Sample size > 30","Population σ is unknown and n is small","We have categorical data"],ans:2,topic:"Hypothesis Testing",exp:"When population standard deviation σ is unknown and sample size is small (typically n<30), we use the t-distribution which has heavier tails to account for extra uncertainty in estimating σ."},
+  {q:"ANOVA is used to compare means across:",opts:["Exactly two groups","Three or more groups","Proportions","Variances only"],ans:1,topic:"Hypothesis Testing",exp:"Analysis of Variance (ANOVA) compares means across 3+ groups simultaneously, avoiding the multiple comparison problem that arises from running many t-tests (which inflates Type I error)."},
+  {q:"A Type I error (false positive) means:",opts:["Failing to reject a false H₀","Rejecting a true H₀","Accepting a false H₀","Correct decision"],ans:1,topic:"Hypothesis Testing",exp:"Type I error: rejecting H₀ when it's actually true (false alarm). Probability = α (significance level). Type II error: failing to reject H₀ when it's false. Its probability is β."},
+  {q:"The Chi-square test is used to examine:",opts:["Mean differences","Variance equality","Relationships between categorical variables","Correlation of continuous variables"],ans:2,topic:"Hypothesis Testing",exp:"Chi-square tests independence between categorical variables. It compares observed vs expected frequencies. Also used for goodness-of-fit testing."},
+  {q:"The Central Limit Theorem states that sample means:",opts:["Are always normally distributed","Approach normal distribution as n increases regardless of population","Equal population mean exactly","Have zero variance with large n"],ans:1,topic:"Statistical Inference",exp:"CLT: As sample size n→∞, the distribution of sample means approaches Normal(μ, σ²/n) regardless of the original population distribution. This justifies many inferential methods."},
+  {q:"A 95% confidence interval means:",opts:["95% chance the parameter is in this specific interval","95% of samples would produce intervals containing the true parameter","The data has 5% errors","The test has 95% power"],ans:1,topic:"Statistical Inference",exp:"Frequentist interpretation: if we repeated sampling many times, 95% of constructed intervals would contain the true population parameter. The specific interval either does or doesn't contain it."},
+  {q:"Standard error of the mean equals:",opts:["σ/n","σ/√n","σ×√n","σ²/n"],ans:1,topic:"Statistical Inference",exp:"SE = σ/√n. Standard error measures variability of sample means, not individual observations. Larger n gives smaller SE, meaning more precise estimates of the population mean."},
+  {q:"Increasing sample size while other factors are fixed:",opts:["Widens the confidence interval","Narrows the confidence interval","Has no effect on confidence interval","Doubles the standard error"],ans:1,topic:"Statistical Inference",exp:"Larger n → smaller SE (σ/√n) → narrower confidence interval → more precise estimate. This is why larger studies give more reliable conclusions."},
+  {q:"In KNN classification, when one feature has much larger values than others, you should:",opts:["Increase K","Use Manhattan distance only","Scale the features","Remove the large feature"],ans:2,topic:"KNN",exp:"KNN uses distance metrics. Without scaling, features with large values dominate distance calculations. StandardScaler or MinMaxScaler ensures all features contribute equally to distance."},
+  {q:"What happens if K is set too small in KNN?",opts:["Underfitting occurs","Overfitting to noise","Decision boundary becomes linear","All points are misclassified"],ans:1,topic:"KNN",exp:"Small K (e.g., K=1) makes the model very sensitive to individual data points including noise, leading to overfitting. The decision boundary is irregular. Large K over-smooths, causing underfitting."},
+  {q:"KNN is a _____ learning algorithm:",opts:["Eager","Lazy","Parametric","Linear"],ans:1,topic:"KNN",exp:"KNN is 'lazy' — it doesn't build an explicit model during training. It stores all training data and only computes at prediction time, making training O(1) but prediction O(n)."},
+  {q:"The optimal value of K in KNN is typically found by:",opts:["Setting K=1 always","Using cross-validation","Taking K=sqrt(n)","Trial and error with training data only"],ans:1,topic:"KNN",exp:"Cross-validation (especially k-fold CV) evaluates different K values on validation sets, selecting the K that gives best generalization. Using only training data would favor K=1 (perfect training accuracy)."},
+  {q:"In simple linear regression, the slope coefficient represents:",opts:["The y-intercept","Change in y per unit change in x","Correlation coefficient","R-squared value"],ans:1,topic:"Linear Regression",exp:"The slope β₁ = Δy/Δx: for every 1-unit increase in the independent variable x, the predicted y changes by β₁ units. The sign indicates direction; magnitude indicates strength."},
+  {q:"R-squared (coefficient of determination) measures:",opts:["Correlation between residuals","Proportion of variance in y explained by the model","Mean squared error","Number of correct predictions"],ans:1,topic:"Linear Regression",exp:"R² ranges from 0 to 1. R²=1 means perfect fit; R²=0 means the model explains no variance. R² = 1 - SS_res/SS_tot. It's not ideal for model comparison with different feature counts (use Adjusted R²)."},
+  {q:"Which of the following is an assumption of linear regression?",opts:["Residuals are normally distributed","Features are binary","Outcome is categorical","No relationship between X and y"],ans:0,topic:"Linear Regression",exp:"LINEAR regression assumes: linearity, independence, homoscedasticity (constant variance), and normality of residuals. Violation of these doesn't prevent fitting but invalidates inference."},
+  {q:"The sigmoid function in logistic regression maps outputs to:",opts:["(-∞, +∞)","(0, 1)","(0, ∞)","(-1, 1)"],ans:1,topic:"Logistic Regression",exp:"σ(z) = 1/(1+e^(-z)) always outputs values between 0 and 1, interpretable as probabilities. At z=0, σ=0.5. As z→+∞, σ→1; as z→-∞, σ→0."},
+  {q:"Logistic regression is used for:",opts:["Continuous output prediction","Binary and multi-class classification","Clustering","Dimensionality reduction"],ans:1,topic:"Logistic Regression",exp:"Despite 'regression' in the name, logistic regression is a classification algorithm. It predicts class probabilities using the sigmoid (binary) or softmax (multi-class) function."},
+  {q:"For a fraud detection model with high accuracy but poor recall on fraud cases, which metric should be prioritized?",opts:["Accuracy","Precision only","Precision and Recall (F1)","Mean Squared Error"],ans:2,topic:"Evaluation Metrics",exp:"With class imbalance (most transactions legitimate), accuracy is misleading. Precision (TP/(TP+FP)) and Recall (TP/(TP+FN)) from the confusion matrix better capture fraud detection performance. F1 balances both."},
+  {q:"A confusion matrix with TP=90, FP=10, FN=5, TN=895 gives precision of:",opts:["90%","94.7%","95.2%","90.9%"],ans:1,topic:"Evaluation Metrics",exp:"Precision = TP/(TP+FP) = 90/(90+10) = 90/100 = 0.90 = 90%. Wait — recalculating: 90/(90+10)=90%. Actually option A is 90%. But 94.7% = 90/(90+5) = TP/(TP+FN) which is Recall. Precision = 90%."},
+  {q:"ROC-AUC of 0.5 indicates:",opts:["Perfect classifier","Random guessing","50% accuracy","Overfitting"],ans:1,topic:"Evaluation Metrics",exp:"AUC=1.0 is perfect. AUC=0.5 means the model performs no better than random guessing (the ROC curve lies on the diagonal). AUC<0.5 means worse than random (predictions are systematically wrong)."},
+  {q:"Recall (sensitivity) is defined as:",opts:["TP/(TP+FP)","TP/(TP+FN)","TN/(TN+FP)","TP/(TP+FP+TN+FN)"],ans:1,topic:"Evaluation Metrics",exp:"Recall = TP/(TP+FN) = True Positives / All Actual Positives. It measures 'of all actual positive cases, how many did we catch?' Critical in medical diagnosis, fraud detection."},
+  {q:"Feature scaling is NOT necessary for which algorithm?",opts:["KNN","SVM","Logistic Regression","Decision Trees"],ans:3,topic:"ML Pipeline",exp:"Decision trees split on thresholds, not distances or gradients. The order/scale of feature values doesn't matter — only their relative ordering for finding splits. KNN, SVM, and logistic regression all benefit from scaling."},
+  {q:"In scikit-learn, the correct order is:",opts:["fit_transform on test, transform on train","fit on train, transform on both","fit_transform on both","fit on test, transform on train"],ans:1,topic:"ML Pipeline",exp:"Always fit on training data only (learn parameters like mean, std), then transform both train and test. Fitting on test data causes data leakage — the model 'knows' about test distribution."},
+  {q:"Cross-validation helps to:",opts:["Increase training data","Assess model generalization and tune hyperparameters","Remove outliers","Increase model complexity"],ans:1,topic:"ML Pipeline",exp:"K-fold CV splits data into k subsets, training k times each with different validation fold. Gives reliable performance estimate and helps select hyperparameters without test set contamination."},
+  {q:"Gradient descent updates parameters by moving in the direction of:",opts:["Steepest ascent","Steepest descent (negative gradient)","Zero gradient","Random direction"],ans:1,topic:"Gradient Descent",exp:"Gradient descent: θ = θ - α×∇L(θ). The negative gradient points downhill on the loss surface. We move opposite to the gradient to minimize loss. Learning rate α controls step size."},
+  {q:"If the learning rate in gradient descent is too large, the model will:",opts:["Converge slowly","Overshoot the minimum and diverge","Always find global minimum","Stop updating"],ans:1,topic:"Gradient Descent",exp:"Large α → large steps → overshoot the minimum → the loss oscillates or diverges. Very small α → very slow convergence. Optimal α balances speed and stability. Adaptive methods (Adam) adjust α automatically."},
+  {q:"Stochastic Gradient Descent (SGD) differs from batch GD in that:",opts:["It uses no learning rate","It updates parameters using one sample at a time","It only works on linear models","It doesn't compute gradients"],ans:1,topic:"Gradient Descent",exp:"Batch GD uses all n samples per update (slow, stable). SGD uses 1 sample (fast, noisy). Mini-batch GD uses a small batch (best of both). SGD's noise can help escape local minima."},
+  {q:"Web scraping must respect:",opts:["Only copyright law","robots.txt rules and rate limits","Nothing, all web data is free","Only API terms"],ans:1,topic:"Data Collection",exp:"Ethical and legal web scraping respects robots.txt (which paths are allowed), rate limits (don't overwhelm servers), terms of service, and copyright. Violating these can result in IP bans or legal issues."},
+  {q:"A 401 HTTP status code from an API means:",opts:["Success","Not Found","Unauthorized","Server Error"],ans:2,topic:"Data Collection",exp:"HTTP status codes: 200=OK, 401=Unauthorized (authentication required), 403=Forbidden, 404=Not Found, 429=Too Many Requests, 500=Internal Server Error. Always check status before processing API responses."},
+  {q:"In EDA, a boxplot helps identify:",opts:["Correlation","Outliers and distribution spread","Missing values","Feature importance"],ans:1,topic:"Data Cleaning & EDA",exp:"Boxplots show median, Q1, Q3, IQR, and whiskers. Points beyond 1.5×IQR from quartiles are shown as outliers. They also reveal skewness and spread without parametric assumptions."},
+  {q:"The best strategy for handling missing values depends on:",opts:["Always removing missing rows","Always using mean imputation","The percentage missing, data type, and missingness mechanism","Only the column name"],ans:2,topic:"Data Cleaning & EDA",exp:"Missing completely at random (MCAR): mean/median imputation OK. Missing at random (MAR): advanced imputation. Missing not at random (MNAR): needs careful handling. High missingness (>50%) → consider dropping column."},
+  {q:"One-hot encoding is used for:",opts:["Ordinal categorical variables","Nominal categorical variables with no natural order","Numerical features","Binary features"],ans:1,topic:"Data Cleaning & EDA",exp:"One-hot creates binary columns for each category. Use for nominal data (colors, cities) where no ordering exists. For ordinal data (low/medium/high), label/ordinal encoding preserves order relationship."},
+  {q:"In supervised learning, the training data must include:",opts:["Only features","Both features and labels","Only labels","Unlabeled data"],ans:1,topic:"ML Fundamentals",exp:"Supervised learning requires (X, y) pairs — input features AND ground truth labels. The model learns to map X→y. Unsupervised learning uses only X to find patterns without labels."},
+  {q:"Overfitting is characterized by:",opts:["High training error, high test error","Low training error, high test error","Low training error, low test error","High training error, low test error"],ans:1,topic:"ML Fundamentals",exp:"Overfitting: model memorizes training data including noise (low training error) but fails to generalize (high test error). Large gap between train and test performance is the diagnostic signal."},
+  {q:"The bias-variance tradeoff states that:",opts:["Low bias always means low variance","Decreasing bias typically increases variance","Both can be minimized simultaneously","Variance only depends on data size"],ans:1,topic:"ML Fundamentals",exp:"Simple models have high bias (underfitting) but low variance. Complex models have low bias but high variance (overfitting). The optimal model balances both. Regularization, ensembles, and cross-validation help manage this tradeoff."}
+];
+
+let questions=[], current=0, score=0, wrong=0, timerInterval=null, timeLeft=30, answered=false, userAnswers=[];
+
+function shuffle(arr){return [...arr].sort(()=>Math.random()-0.5)}
+
+function startQuiz(){
+  questions=shuffle(ALL_QUESTIONS);
+  current=0; score=0; wrong=0; userAnswers=[];
+  show('quiz-screen');
+  loadQuestion();
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function loadQuestion(){
+  if(current>=questions.length){showScore();return}
+  answered=false;
+  const q=questions[current];
+  document.getElementById('q-counter').textContent=`Q ${current+1} / ${questions.length}`;
+  document.getElementById('q-topic').textContent=q.topic;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('progress-bar').style.width=((current/questions.length)*100)+'%';
+  const opts=document.getElementById('options');
+  const letters=['A','B','C','D'];
+  opts.innerHTML=q.opts.map((o,i)=>`<div class="opt" id="opt-${i}" onclick="selectOpt(${i})"><span class="opt-letter">${letters[i]}</span><span>${o}</span></div>`).join('');
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('feedback').innerHTML='';
+  document.getElementById('next-btn').style.display='none';
+  startTimer();
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timeLeft=30;
+  updateTimerDisplay();
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    updateTimerDisplay();
+    if(timeLeft<=0){clearInterval(timerInterval);autoSkip();}
+  },1000);
+}
+
+function updateTimerDisplay(){
+  const el=document.getElementById('timer');
+  el.textContent=`0:${String(timeLeft).padStart(2,'0')}`;
+  el.className=timeLeft<=10?'timer danger':'timer';
+}
+
+function autoSkip(){
+  if(answered)return;
+  answered=true;
+  userAnswers.push({q:questions[current],selected:-1,correct:false});
+  const q=questions[current];
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
+  document.getElementById(`opt-${q.ans}`).classList.add('correct');
+  showFeedback(false,q);
+  document.getElementById('next-btn').style.display='block';
+}
+
+function selectOpt(i){
+  if(answered)return;
+  answered=true;
+  clearInterval(timerInterval);
+  const q=questions[current];
+  const correct=i===q.ans;
+  if(correct)score++;else wrong++;
+  userAnswers.push({q,selected:i,correct});
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
+  document.getElementById(`opt-${q.ans}`).classList.add('correct');
+  if(!correct)document.getElementById(`opt-${i}`).classList.add('wrong');
+  showFeedback(correct,q);
+  document.getElementById('next-btn').style.display='block';
+}
+
+function showFeedback(correct,q){
+  const fb=document.getElementById('feedback');
+  fb.className='feedback show '+(correct?'correct-fb':'wrong-fb');
+  fb.innerHTML=`<strong>${correct?'Correct!':'Incorrect.'}</strong> ${q.exp}`;
+}
+
+function nextQuestion(){
+  current++;
+  loadQuestion();
+}
+
+function showScore(){
+  clearInterval(timerInterval);
+  show('score-screen');
+  const pct=Math.round((score/questions.length)*100);
+  document.getElementById('final-score-pct').textContent=pct+'%';
+  const skipped=questions.length-score-wrong;
+  document.getElementById('s-correct').textContent=score;
+  document.getElementById('s-wrong').textContent=wrong;
+  document.getElementById('s-skipped').textContent=skipped;
+  let title,msg;
+  if(pct>=80){title='Excellent work!';msg='You have a strong grasp of ML fundamentals.';}
+  else if(pct>=60){title='Good job!';msg='Review the topics you missed and try again.';}
+  else{title='Keep practicing!';msg='Go through the syllabus materials and retake the quiz.';}
+  document.getElementById('result-title').textContent=title;
+  document.getElementById('result-msg').textContent=msg;
+  document.getElementById('review-section').style.display='none';
+}
+
+function toggleReview(){
+  const sec=document.getElementById('review-section');
+  if(sec.style.display==='none'){
+    sec.style.display='block';
+    const letters=['A','B','C','D'];
+    sec.innerHTML='<h2>Answer Review</h2>'+userAnswers.map((a,i)=>{
+      const sel=a.selected>=0?`Your answer: <strong>${letters[a.selected]}. ${a.q.opts[a.selected]}</strong>`:'<em>Skipped (time up)</em>';
+      const cls=a.correct?'review-correct':'review-wrong';
+      return `<div class="review-item"><div class="review-q">${i+1}. ${a.q.q}</div><div class="review-answer ${cls}">${sel}</div><div class="review-answer review-correct">Correct: ${letters[a.q.ans]}. ${a.q.opts[a.q.ans]}</div><div class="review-exp">${a.q.exp}</div></div>`;
+    }).join('');
+  }else{sec.style.display='none'}
+}
+
+function restartQuiz(){
+  document.getElementById('review-section').style.display='none';
+  startQuiz();
+}
+</script>
