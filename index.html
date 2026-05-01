@@ -1,286 +1,1005 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>End Module 1 — Evaluation Quiz | IIT Patna × Masai</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans);color:var(--color-text-primary)}
-#quiz-app{padding:1rem 0;max-width:720px;margin:auto}
+:root{
+  --bg:#07070f;--bg2:#0d0d1a;--bg3:#111120;--bg4:#181830;
+  --accent:#00f5ff;--accent2:#7c3aed;--accent3:#10b981;
+  --danger:#ef4444;--warn:#f59e0b;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#475569;
+  --border:#1a1a2e;--border2:#2a2a45;
+}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:9999}
+#app{max-width:760px;margin:0 auto;padding:.75rem 1rem;position:relative;z-index:1}
 .screen{display:none}
 .screen.active{display:block}
+
+/* TOP BAR */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:.5rem 0 .75rem;border-bottom:1px solid var(--border2);margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem}
+.brand-logo{display:flex;align-items:center;gap:10px}
+.brand-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.brand-name{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:2px}
+.brand-sub{font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:1px}
+.made-by{font-size:9px;color:var(--text3);letter-spacing:1px;text-align:right;line-height:1.6}
+.made-by span{color:var(--accent);font-weight:700;font-size:11px}
+
+/* TICKER */
+.score-ticker{display:flex;gap:5px;align-items:center}
+.ticker-item{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border2);border-radius:3px;padding:5px 10px;font-size:10px;letter-spacing:1px}
+.ticker-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-g{background:var(--accent3);box-shadow:0 0 6px var(--accent3)}
+.dot-r{background:var(--danger);box-shadow:0 0 6px var(--danger)}
+.dot-b{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.ticker-val{font-weight:700;font-size:13px;min-width:24px;display:inline-block;text-align:center;transition:all .2s}
+.ticker-lbl{color:var(--text3);font-size:9px}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+.pop{animation:pop .3s ease}
+
+/* START */
 #start-screen{text-align:center;padding:2rem 1rem}
-#start-screen h1{font-size:22px;font-weight:500;margin-bottom:.5rem}
-#start-screen p{font-size:14px;color:var(--color-text-secondary);margin-bottom:1.5rem}
-.tag-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:1.5rem}
-.tag{font-size:12px;padding:3px 10px;border-radius:20px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
-.btn{display:inline-block;padding:10px 24px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:14px;cursor:pointer;font-family:var(--font-sans);transition:background .15s}
-.btn:hover{background:var(--color-background-secondary)}
-.btn.primary{background:#178CF2;border-color:#178CF2;color:#fff;font-weight:500}
-.btn.primary:hover{background:#1279d4}
-#quiz-screen{padding:.5rem 0}
-.quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:12px}
-.progress-wrap{flex:1;height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
-#progress-bar{height:100%;background:#178CF2;border-radius:3px;transition:width .3s}
-#timer{font-size:13px;font-weight:500;min-width:50px;text-align:right;color:var(--color-text-secondary)}
-#timer.danger{color:#E24B4A}
-.q-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-secondary);margin-bottom:.75rem}
-.q-text{font-size:15px;font-weight:500;line-height:1.6;margin-bottom:1.25rem;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem}
-.options{display:flex;flex-direction:column;gap:.5rem}
-.opt{padding:.75rem 1rem;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;font-size:14px;line-height:1.5;display:flex;gap:10px;align-items:flex-start;transition:background .1s,border-color .1s;background:var(--color-background-primary)}
-.opt:hover:not(.disabled){background:var(--color-background-secondary);border-color:var(--color-border-secondary)}
-.opt.correct{background:#EAF3DE;border-color:#639922;color:#27500A}
-.opt.wrong{background:#FCEBEB;border-color:#E24B4A;color:#791F1F}
-.opt.disabled{cursor:default}
-.opt-letter{font-weight:500;min-width:18px;font-size:13px}
-.feedback{margin-top:1rem;padding:1rem;border-radius:var(--border-radius-md);font-size:13px;line-height:1.6;display:none}
+.title-l1{font-size:32px;font-weight:700;color:var(--accent);letter-spacing:5px;text-transform:uppercase;text-shadow:0 0 24px var(--accent),0 0 50px rgba(0,245,255,.2);line-height:1.1}
+.title-l2{font-size:20px;font-weight:700;color:var(--accent2);letter-spacing:7px;text-transform:uppercase;text-shadow:0 0 16px var(--accent2);margin-bottom:.4rem}
+.sub-title{font-size:10px;color:var(--text3);letter-spacing:2px;margin-bottom:1.4rem;text-transform:uppercase}
+.divider{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--accent2),transparent);margin:.6rem auto 1.2rem}
+.topics-grid{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:1.4rem}
+.topic-tag{font-size:9px;padding:3px 10px;border-radius:2px;background:var(--bg3);border:1px solid var(--border2);color:var(--accent);letter-spacing:1px;text-transform:uppercase}
+.start-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.4rem;max-width:360px;margin-left:auto;margin-right:auto}
+.stat-box{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:.8rem;text-align:center}
+.stat-num{font-size:26px;font-weight:700;color:var(--accent)}
+.stat-lbl{font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.start-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 40px;background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:all .25s}
+.start-btn:hover{box-shadow:0 0 30px rgba(0,245,255,.25),inset 0 0 30px rgba(0,245,255,.04);transform:translateY(-1px)}
+.start-footer{font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:1.2rem;opacity:.5;text-transform:uppercase}
+
+/* PROGRESS */
+.progress-section{margin-bottom:.75rem}
+.progress-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.q-label{font-size:10px;color:var(--accent);letter-spacing:2px;font-weight:700}
+.q-topic-badge{font-size:9px;padding:2px 9px;border:1px solid var(--accent2);color:var(--accent2);border-radius:2px;letter-spacing:1px;max-width:55%;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.progress-track{height:8px;background:var(--bg3);border:1px solid var(--border2);overflow:hidden;position:relative}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .4s cubic-bezier(.4,0,.2,1);box-shadow:0 0 10px rgba(0,245,255,.35);position:relative}
+.progress-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:3px;background:#fff;opacity:.75}
+.seg-track{display:flex;gap:2px;margin-top:3px}
+.seg{flex:1;height:3px;border-radius:1px;background:var(--border2);transition:background .3s}
+.seg.sc{background:var(--accent3);box-shadow:0 0 4px var(--accent3)}
+.seg.sw{background:var(--danger);box-shadow:0 0 4px var(--danger)}
+.seg.ss{background:var(--text3)}
+.seg.cur{background:var(--warn);box-shadow:0 0 5px var(--warn)}
+
+/* TIMER */
+.timer-section{display:flex;align-items:center;gap:12px;margin-bottom:.75rem;background:var(--bg2);border:1px solid var(--border2);border-radius:5px;padding:.65rem .85rem}
+.timer-ring{width:46px;height:46px;position:relative;flex-shrink:0}
+.timer-ring svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--bg4);stroke-width:4}
+.ring-fg{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .95s linear,stroke .3s}
+.timer-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent)}
+.timer-text.dng{color:var(--danger);animation:blink .5s ease-in-out infinite alternate}
+@keyframes blink{from{opacity:1}to{opacity:.35}}
+.timer-bars{flex:1;display:flex;flex-direction:column;gap:6px}
+.timer-bar-label{display:flex;justify-content:space-between;align-items:center}
+.tbl-text{font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.tbl-val{font-size:9px;font-weight:700;color:var(--accent)}
+.tbl-val.dng{color:var(--danger)}
+.bar-track{height:5px;background:var(--bg4);border:1px solid var(--border);overflow:hidden;position:relative}
+.bar-fill{height:100%;position:relative}
+.bar-time{background:linear-gradient(90deg,var(--accent3),var(--accent));transition:width .95s linear,background .3s}
+.bar-time::after{content:'';position:absolute;right:0;top:0;bottom:0;width:2px;background:#fff;opacity:.5}
+.bar-time.dng{background:linear-gradient(90deg,var(--danger),var(--warn))}
+.bar-prog{background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .4s}
+
+/* QUESTION */
+.q-card{background:var(--bg2);border:1px solid var(--border2);border-left:3px solid var(--accent);border-radius:5px;padding:1rem 1.15rem;margin-bottom:.75rem;position:relative;overflow:hidden}
+.q-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:radial-gradient(circle,rgba(0,245,255,.04),transparent 70%)}
+.q-num{font-size:9px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:.4rem}
+.q-text{font-size:13px;line-height:1.75;color:var(--text)}
+
+/* OPTIONS */
+.options{display:flex;flex-direction:column;gap:7px;margin-bottom:.75rem}
+.opt{width:100%;padding:.7rem 1rem;border:1px solid var(--border2);border-radius:3px;cursor:pointer;font-size:12px;line-height:1.55;display:flex;gap:10px;align-items:flex-start;background:var(--bg2);color:var(--text);font-family:'JetBrains Mono',monospace;transition:border-color .15s,background .15s,color .15s;position:relative;overflow:hidden;text-align:left}
+.opt::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,rgba(0,245,255,.06),transparent);transition:width .2s}
+.opt:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.opt:hover:not(:disabled)::before{width:100%}
+.opt-letter{font-weight:700;min-width:22px;font-size:10px;color:var(--accent2);flex-shrink:0;margin-top:1px}
+.opt:hover:not(:disabled) .opt-letter{color:var(--accent)}
+.opt.correct{border-color:var(--accent3)!important;background:rgba(16,185,129,.09)!important;color:var(--accent3)!important}
+.opt.correct .opt-letter{color:var(--accent3)!important}
+.opt.wrong{border-color:var(--danger)!important;background:rgba(239,68,68,.09)!important;color:var(--danger)!important}
+.opt.wrong .opt-letter{color:var(--danger)!important}
+.opt:disabled{cursor:default;pointer-events:none}
+
+/* FEEDBACK */
+.feedback{margin-bottom:.75rem;padding:.85rem 1rem;border-radius:3px;font-size:11px;line-height:1.75;display:none;border-left:3px solid}
 .feedback.show{display:block}
-.feedback.correct-fb{background:#EAF3DE;border:0.5px solid #639922;color:#27500A}
-.feedback.wrong-fb{background:#FCEBEB;border:0.5px solid #E24B4A;color:#501313}
-.feedback strong{font-weight:500}
-#next-btn{margin-top:1rem;width:100%}
-#score-screen{text-align:center;padding:1.5rem 0}
-.score-circle{width:120px;height:120px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 1.5rem;border:4px solid #178CF2}
-.score-num{font-size:32px;font-weight:500;color:#178CF2}
-.score-label{font-size:12px;color:var(--color-text-secondary)}
-.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:1rem 0 1.5rem}
-.s-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.75rem;text-align:center}
-.s-val{font-size:22px;font-weight:500}
-.s-lbl{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
-.green-val{color:#3B6D11}
-.red-val{color:#A32D2D}
-.blue-val{color:#185FA5}
-#review-section{text-align:left;margin-top:1.5rem}
-#review-section h2{font-size:16px;font-weight:500;margin-bottom:1rem}
-.review-item{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;margin-bottom:.75rem;background:var(--color-background-primary)}
-.review-q{font-size:13px;font-weight:500;margin-bottom:.5rem}
-.review-answer{font-size:12px;margin-bottom:.5rem}
-.review-correct{color:#3B6D11}
-.review-wrong{color:#A32D2D}
-.review-exp{font-size:12px;color:var(--color-text-secondary);line-height:1.5;border-top:0.5px solid var(--color-border-tertiary);padding-top:.5rem;margin-top:.5rem}
-.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.feedback.cfb{background:rgba(16,185,129,.06);border-color:var(--accent3);color:#86efac}
+.feedback.wfb{background:rgba(239,68,68,.06);border-color:var(--danger);color:#fca5a5}
+.feedback.sfb{background:rgba(245,158,11,.06);border-color:var(--warn);color:#fcd34d}
+.fb-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.cfb .fb-label{color:var(--accent3)}
+.wfb .fb-label{color:var(--danger)}
+.sfb .fb-label{color:var(--warn)}
+
+/* NAV BUTTONS */
+.nav-row{display:flex;gap:8px;margin-top:.25rem}
+.nav-btn{flex:1;padding:12px;background:transparent;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:all .2s}
+.btn-prev{border:1px solid var(--border2);color:var(--text3)}
+.btn-prev:hover:not(:disabled){border-color:var(--text2);color:var(--text);background:rgba(255,255,255,.03)}
+.btn-prev:disabled{opacity:.25;cursor:not-allowed}
+.btn-next{border:1px solid var(--accent2);color:var(--accent2)}
+.btn-next:hover{background:rgba(124,58,237,.1);border-color:var(--accent);color:var(--accent);box-shadow:0 0 16px rgba(124,58,237,.2)}
+
+/* SCORE */
+#score-screen{padding:.5rem 0}
+.score-hero{text-align:center;padding:1.5rem 1rem;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;margin-bottom:.75rem;position:relative;overflow:hidden}
+.score-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center top,rgba(0,245,255,.05),transparent 65%)}
+.score-ring{width:130px;height:130px;position:relative;margin:0 auto .9rem}
+.score-ring svg{transform:rotate(-90deg)}
+.sc-bg{fill:none;stroke:var(--bg4);stroke-width:9}
+.sc-fg{fill:none;stroke-width:9;stroke-linecap:round;stroke-dasharray:326.73;stroke-dashoffset:326.73;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1),stroke .5s}
+.score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-pct{font-size:30px;font-weight:700;color:var(--accent);transition:color .5s}
+.score-lbl{font-size:8px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+.result-title{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:.3rem}
+.result-msg{font-size:10px;color:var(--text2)}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:.75rem 0}
+.s-card{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:.75rem;text-align:center;position:relative;overflow:hidden}
+.s-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.s-card.sg::after{background:var(--accent3);box-shadow:0 0 6px var(--accent3)}
+.s-card.sr::after{background:var(--danger);box-shadow:0 0 6px var(--danger)}
+.s-card.sb::after{background:var(--text3)}
+.s-val{font-size:28px;font-weight:700;margin-bottom:3px}
+.s-card.sg .s-val{color:var(--accent3)}
+.s-card.sr .s-val{color:var(--danger)}
+.s-card.sb .s-val{color:var(--text2)}
+.s-lbl{font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.breakdown{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:.85rem;margin-bottom:.75rem}
+.bk-title{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:.7rem}
+.bk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.bk-lbl{font-size:10px;color:var(--text2);margin-bottom:3px}
+.bk-val{font-size:18px;font-weight:700}
+.bk-val.vc{color:var(--accent)}
+.bk-val.vp{color:var(--accent2)}
+.bk-val.vr{color:var(--warn)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.75rem}
+
+/* TOTAL SCORE BUTTON */
+.total-score-btn{display:flex;align-items:center;gap:6px;padding:5px 12px;background:transparent;border:1px solid var(--accent3);color:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:all .2s;white-space:nowrap}
+.total-score-btn:hover{background:rgba(16,185,129,.1);box-shadow:0 0 14px rgba(16,185,129,.2)}
+.total-score-btn .ts-val{font-size:13px;font-weight:700;color:var(--accent3);min-width:20px;text-align:center}
+
+/* SCORE OVERLAY */
+.score-overlay{position:fixed;inset:0;background:rgba(7,7,15,.85);z-index:10000;display:none;align-items:center;justify-content:center}
+.score-overlay.show{display:flex}
+.score-popup{background:var(--bg2);border:1px solid var(--accent3);border-radius:8px;padding:1.5rem;max-width:320px;width:90%;position:relative;box-shadow:0 0 40px rgba(16,185,129,.15)}
+.score-popup-title{font-size:11px;color:var(--accent3);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;text-align:center;font-weight:700}
+.score-popup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
+.sp-cell{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:.6rem;text-align:center}
+.sp-val{font-size:22px;font-weight:700;margin-bottom:2px}
+.sp-lbl{font-size:8px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.sp-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.sp-cell2{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:.6rem;text-align:center}
+.sp-val2{font-size:18px;font-weight:700}
+.sp-lbl2{font-size:8px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.score-popup-close{width:100%;padding:9px;background:transparent;border:1px solid var(--border2);color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:all .2s}
+.score-popup-close:hover{border-color:var(--accent3);color:var(--accent3)}
+
+/* ANSWERED / NOT ANSWERED JUMP BUTTONS */
+.jump-row{display:flex;gap:6px;margin-top:6px}
+.jump-btn{flex:1;padding:9px 6px;background:transparent;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:all .2s;position:relative}
+.jump-btn:disabled{opacity:.3;cursor:not-allowed}
+.jump-answered{border:1px solid var(--accent3);color:var(--accent3)}
+.jump-answered:hover:not(:disabled){background:rgba(16,185,129,.08);box-shadow:0 0 10px rgba(16,185,129,.15)}
+.jump-unanswered{border:1px solid var(--warn);color:var(--warn)}
+.jump-unanswered:hover:not(:disabled){background:rgba(245,158,11,.08);box-shadow:0 0 10px rgba(245,158,11,.15)}
+.jump-badge{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;font-size:8px;font-weight:700;margin-left:4px;vertical-align:middle}
+.jb-ans{background:var(--accent3);color:#000}
+.jb-un{background:var(--warn);color:#000}
+.action-btn{flex:1;padding:11px;background:transparent;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:all .2s;min-width:100px}
+.action-btn.ap{border:1px solid var(--accent);color:var(--accent)}
+.action-btn.ap:hover{background:rgba(0,245,255,.07);box-shadow:0 0 18px rgba(0,245,255,.15)}
+.action-btn.as{border:1px solid var(--border2);color:var(--text2)}
+.action-btn.as:hover{border-color:var(--accent2);color:var(--accent2)}
+
+/* REVIEW */
+#review-section{margin-top:.75rem;display:none}
+.review-header{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent2);margin-bottom:.65rem;padding-bottom:.4rem;border-bottom:1px solid var(--border2)}
+.review-item{border:1px solid var(--border2);border-radius:4px;padding:.75rem;margin-bottom:.5rem;background:var(--bg2)}
+.review-item.rc{border-left:3px solid var(--accent3)}
+.review-item.rw{border-left:3px solid var(--danger)}
+.review-item.rs{border-left:3px solid var(--text3)}
+.review-q{font-size:11px;font-weight:500;margin-bottom:.4rem;line-height:1.55;color:var(--text)}
+.review-ans{font-size:10px;margin-bottom:2px;letter-spacing:.3px}
+.rv-c{color:var(--accent3)}
+.rv-w{color:var(--danger)}
+.rv-s{color:var(--text3)}
+.review-exp{font-size:10px;color:var(--text2);line-height:1.65;border-top:1px solid var(--border2);padding-top:.4rem;margin-top:.4rem}
 </style>
+</head>
+<body>
+<div id="app">
 
-<div id="quiz-app">
-<div id="start-screen" class="screen active">
-  <h2 class="sr-only">Masai ML Module 1 Quiz — IIT Patna</h2>
-  <h1>Masai ML Module 1 Quiz</h1>
-  <p>IIT Patna · 50 questions · 30 seconds per question</p>
-  <div class="tag-row">
-    <span class="tag">Linear Algebra</span><span class="tag">Probability</span><span class="tag">Statistics</span>
-    <span class="tag">Distributions</span><span class="tag">Hypothesis Testing</span><span class="tag">Gradient Descent</span>
-    <span class="tag">KNN</span><span class="tag">Logistic Regression</span><span class="tag">Evaluation Metrics</span>
-    <span class="tag">ML Pipeline</span>
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="brand-logo">
+      <div class="brand-icon">EM1</div>
+      <div>
+        <div class="brand-name">END MODULE 1</div>
+        <div class="brand-sub">EVALUATION QUIZ · IIT PATNA × MASAI</div>
+      </div>
+    </div>
+    <div id="live-ticker" class="score-ticker" style="display:none">
+      <div class="ticker-item">
+        <div class="ticker-dot dot-g"></div>
+        <span class="ticker-val" id="t-sc">0</span>
+        <span class="ticker-lbl">&nbsp;pts</span>
+      </div>
+      <div class="ticker-item">
+        <div class="ticker-dot dot-r"></div>
+        <span class="ticker-val" id="t-wr">0</span>
+        <span class="ticker-lbl">&nbsp;wrong</span>
+      </div>
+      <div class="ticker-item">
+        <div class="ticker-dot dot-b"></div>
+        <span class="ticker-val" id="t-acc">—</span>
+        <span class="ticker-lbl">&nbsp;acc</span>
+      </div>
+    </div>
+    <button class="total-score-btn" id="total-score-btn" onclick="showScoreOverlay()" style="display:none" title="View current score">
+      ◈ SCORE&nbsp;<span class="ts-val" id="ts-live">0</span>
+    </button>
+    <div class="made-by">made by<br><span>YASH</span></div>
   </div>
-  <button class="btn primary" onclick="startQuiz()">Start Quiz</button>
-</div>
 
-<div id="quiz-screen" class="screen">
-  <div class="quiz-header">
-    <div class="progress-wrap"><div id="progress-bar" style="width:0%"></div></div>
-    <div id="timer">0:30</div>
+  <!-- SCORE OVERLAY POPUP -->
+  <div class="score-overlay" id="score-overlay" onclick="closeScoreOverlay(event)">
+    <div class="score-popup">
+      <div class="score-popup-title">// LIVE SCORE BOARD</div>
+      <div class="score-popup-grid">
+        <div class="sp-cell"><div class="sp-val" id="sp-cor" style="color:var(--accent3)">0</div><div class="sp-lbl">✓ correct</div></div>
+        <div class="sp-cell"><div class="sp-val" id="sp-wr" style="color:var(--danger)">0</div><div class="sp-lbl">✗ wrong</div></div>
+        <div class="sp-cell"><div class="sp-val" id="sp-sk" style="color:var(--text3)">0</div><div class="sp-lbl">⊘ skipped</div></div>
+      </div>
+      <div class="sp-row2">
+        <div class="sp-cell2"><div class="sp-val2" id="sp-acc" style="color:var(--accent)">—</div><div class="sp-lbl2">accuracy</div></div>
+        <div class="sp-cell2"><div class="sp-val2" id="sp-rem" style="color:var(--accent2)">—</div><div class="sp-lbl2">remaining</div></div>
+      </div>
+      <button class="score-popup-close" onclick="document.getElementById('score-overlay').classList.remove('show')">✕ CLOSE</button>
+    </div>
   </div>
-  <div class="q-meta">
-    <span id="q-counter">Q 1 / 50</span>
-    <span id="q-topic"></span>
-  </div>
-  <div class="q-text" id="q-text"></div>
-  <div class="options" id="options"></div>
-  <div class="feedback" id="feedback"></div>
-  <button class="btn primary" id="next-btn" style="display:none" onclick="nextQuestion()">Next →</button>
-</div>
 
-<div id="score-screen" class="screen">
-  <div class="score-circle">
-    <span class="score-num" id="final-score-pct">0%</span>
-    <span class="score-label">score</span>
+  <!-- START SCREEN -->
+  <div id="start-screen" class="screen active">
+    <div class="title-l1">End Module 1</div>
+    <div class="title-l2">Evaluation Quiz</div>
+    <div class="sub-title">ML Fundamentals · 60 Questions · 45s Each · IIT Patna × Masai</div>
+    <div class="divider"></div>
+    <div class="topics-grid">
+      <span class="topic-tag">Vectors &amp; Linear Algebra</span>
+      <span class="topic-tag">Probability Fundamentals</span>
+      <span class="topic-tag">Probability Distributions</span>
+      <span class="topic-tag">Statistical Inference</span>
+      <span class="topic-tag">Hypothesis Testing</span>
+      <span class="topic-tag">Derivatives &amp; Gradient Descent</span>
+      <span class="topic-tag">Applied Statistical Tests</span>
+      <span class="topic-tag">ML Pipeline &amp; Scikit-learn</span>
+      <span class="topic-tag">History &amp; Foundations of AI</span>
+      <span class="topic-tag">KNN &amp; Linear Regression</span>
+      <span class="topic-tag">Logistic Regression</span>
+      <span class="topic-tag">Evaluation Metrics</span>
+      <span class="topic-tag">Data Collection: APIs &amp; Scraping</span>
+      <span class="topic-tag">Data Cleaning &amp; EDA</span>
+      <span class="topic-tag">Types of ML &amp; Modern AI Stacks</span>
+    </div>
+    <div class="start-stats">
+      <div class="stat-box"><div class="stat-num">60</div><div class="stat-lbl">questions</div></div>
+      <div class="stat-box"><div class="stat-num">45s</div><div class="stat-lbl">per question</div></div>
+      <div class="stat-box"><div class="stat-num">15</div><div class="stat-lbl">topics</div></div>
+    </div>
+    <button class="start-btn" onclick="startQuiz()">
+      <span style="color:var(--accent2)">▶</span>&nbsp;BEGIN EVALUATION
+    </button>
+    <div class="start-footer">IIT Patna × Masai · End Module 1 · ML Fundamentals</div>
   </div>
-  <h1 id="result-title" style="font-size:20px;font-weight:500;margin-bottom:.5rem"></h1>
-  <p id="result-msg" style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem"></p>
-  <div class="summary-grid">
-    <div class="s-card"><div class="s-val green-val" id="s-correct">0</div><div class="s-lbl">Correct</div></div>
-    <div class="s-card"><div class="s-val red-val" id="s-wrong">0</div><div class="s-lbl">Wrong</div></div>
-    <div class="s-card"><div class="s-val blue-val" id="s-skipped">0</div><div class="s-lbl">Skipped</div></div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz-screen" class="screen">
+    <div class="progress-section">
+      <div class="progress-info">
+        <span class="q-label" id="q-counter">Q 01 / 60</span>
+        <span class="q-topic-badge" id="q-topic"></span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-bar" style="width:0%"></div>
+      </div>
+      <div class="seg-track" id="seg-track"></div>
+    </div>
+
+    <div class="timer-section">
+      <div class="timer-ring">
+        <svg width="46" height="46" viewBox="0 0 46 46">
+          <circle class="ring-bg" cx="23" cy="23" r="18"/>
+          <circle class="ring-fg" id="ring-fg" cx="23" cy="23" r="18"
+            stroke="var(--accent)" stroke-dasharray="113.1" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-text" id="timer-text">0:45</div>
+      </div>
+      <div class="timer-bars">
+        <div class="timer-bar-label">
+          <span class="tbl-text">TIME REMAINING</span>
+          <span class="tbl-val" id="tbl-val">45s</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill bar-time" id="time-bar" style="width:100%"></div>
+        </div>
+        <div class="timer-bar-label" style="margin-top:2px">
+          <span class="tbl-text">QUIZ PROGRESS</span>
+          <span class="tbl-val" id="pbl-val">0%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill bar-prog" id="pct-bar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-num" id="q-num">// QUESTION 01</div>
+      <div class="q-text" id="q-text"></div>
+    </div>
+
+    <div class="options" id="options"></div>
+
+    <div class="feedback" id="feedback">
+      <div class="fb-label" id="fb-lbl"></div>
+      <div id="fb-txt"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="nav-btn btn-prev" id="btn-prev" onclick="prevQ()" disabled>‹ PREVIOUS</button>
+      <button class="nav-btn btn-next" id="btn-next" onclick="nextQ()">NEXT ›</button>
+    </div>
+    <div class="jump-row">
+      <button class="jump-btn jump-answered" id="jump-ans-btn" onclick="jumpToAnswered()" title="Jump to next answered question">
+        ✓ ANSWERED <span class="jump-badge jb-ans" id="jb-ans-count">0</span>
+      </button>
+      <button class="jump-btn jump-unanswered" id="jump-un-btn" onclick="jumpToUnanswered()" title="Jump to next unanswered question">
+        ◌ NOT ANSWERED <span class="jump-badge jb-un" id="jb-un-count">0</span>
+      </button>
+    </div>
   </div>
-  <div class="btn-row">
-    <button class="btn primary" onclick="restartQuiz()">Retake Quiz</button>
-    <button class="btn" onclick="toggleReview()">Review Answers</button>
+
+  <!-- SCORE SCREEN -->
+  <div id="score-screen" class="screen">
+    <div class="score-hero">
+      <div class="score-ring">
+        <svg width="130" height="130" viewBox="0 0 130 130">
+          <circle class="sc-bg" cx="65" cy="65" r="52"/>
+          <circle class="sc-fg" id="sc-fg" cx="65" cy="65" r="52"/>
+        </svg>
+        <div class="score-center">
+          <div class="score-pct" id="final-pct">0%</div>
+          <div class="score-lbl">accuracy</div>
+        </div>
+      </div>
+      <div class="result-title" id="result-title"></div>
+      <div class="result-msg" id="result-msg"></div>
+    </div>
+    <div class="summary-grid">
+      <div class="s-card sg"><div class="s-val" id="s-cor">0</div><div class="s-lbl">✓ correct</div></div>
+      <div class="s-card sr"><div class="s-val" id="s-wr">0</div><div class="s-lbl">✗ wrong</div></div>
+      <div class="s-card sb"><div class="s-val" id="s-sk">0</div><div class="s-lbl">⊘ skipped</div></div>
+    </div>
+    <div class="breakdown">
+      <div class="bk-title">// score breakdown</div>
+      <div class="bk-grid">
+        <div><div class="bk-lbl">Total Points</div><div class="bk-val vc" id="bk-pts">0</div></div>
+        <div><div class="bk-lbl">Accuracy</div><div class="bk-val vp" id="bk-acc">0%</div></div>
+        <div><div class="bk-lbl">Rank</div><div class="bk-val vr" id="bk-rank">—</div></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="action-btn ap" onclick="restartQuiz()">↺ RETAKE</button>
+      <button class="action-btn as" onclick="toggleReview()">⊞ REVIEW ANSWERS</button>
+    </div>
+    <div id="review-section">
+      <div class="review-header">// ANSWER REVIEW</div>
+      <div id="review-list"></div>
+    </div>
   </div>
-  <div id="review-section" style="display:none"></div>
-</div>
+
 </div>
 
 <script>
-const ALL_QUESTIONS = [
-  {q:"What is the result of the dot product of two vectors [1,2,3] and [4,5,6]?",opts:["14","32","15","21"],ans:1,topic:"Linear Algebra",exp:"Dot product = 1×4 + 2×5 + 3×6 = 4+10+18 = 32. It always produces a single scalar value."},
-  {q:"For matrix multiplication A×B to be valid, if A has shape (m×n), what must be the shape of B?",opts:["(m×p)","(n×p)","(p×m)","(p×n)"],ans:1,topic:"Linear Algebra",exp:"The number of columns in A (n) must equal the number of rows in B. So B must have n rows, making it (n×p). Result shape is (m×p)."},
-  {q:"Which of the following is TRUE about the transpose of a matrix?",opts:["Rows become columns","Columns are deleted","The matrix is inverted","Determinant changes sign"],ans:0,topic:"Linear Algebra",exp:"Transpose swaps rows and columns. If A is (m×n), then A^T is (n×m). The values are reflected across the main diagonal."},
-  {q:"A vector of magnitude 0 is called a:",opts:["Unit vector","Zero vector","Basis vector","Orthogonal vector"],ans:1,topic:"Linear Algebra",exp:"A zero vector has all components equal to zero and therefore has magnitude 0. A unit vector has magnitude exactly 1."},
-  {q:"If two vectors are orthogonal, their dot product equals:",opts:["1","-1","0","Infinity"],ans:2,topic:"Linear Algebra",exp:"Orthogonal means perpendicular (90° angle). cos(90°) = 0. Dot product = |A||B|cos(θ) = 0. This is a key property used in many ML algorithms."},
-  {q:"Which probability distribution is used for modeling the number of successes in a fixed number of independent trials?",opts:["Poisson","Normal","Binomial","Exponential"],ans:2,topic:"Probability Distributions",exp:"The Binomial distribution models exactly this: n independent trials each with probability p of success. P(X=k) = C(n,k)×p^k×(1-p)^(n-k)."},
-  {q:"The Poisson distribution is most appropriate for:",opts:["Modeling binary outcomes","Counting events in a fixed interval","Measuring continuous heights","Modeling equal-likelihood outcomes"],ans:1,topic:"Probability Distributions",exp:"Poisson models the number of events occurring in a fixed time/space interval when events occur independently at a constant rate λ. Classic use: customer arrivals per hour."},
-  {q:"For a normal distribution, what percentage of data falls within 2 standard deviations of the mean?",opts:["68%","95%","99.7%","50%"],ans:1,topic:"Probability Distributions",exp:"The empirical rule (68-95-99.7): ~68% within 1σ, ~95% within 2σ, ~99.7% within 3σ. This is fundamental to statistical inference."},
-  {q:"The Probability Mass Function (PMF) is used for:",opts:["Continuous random variables","Discrete random variables","Normal distributions only","Exponential distributions"],ans:1,topic:"Probability Distributions",exp:"PMF assigns probabilities to individual discrete values. For continuous variables, we use the Probability Density Function (PDF) where probabilities are areas under the curve."},
-  {q:"Which distribution would best model the waiting time between consecutive customer arrivals?",opts:["Binomial","Poisson","Exponential","Uniform"],ans:2,topic:"Probability Distributions",exp:"The Exponential distribution models waiting time between events in a Poisson process. It has the memoryless property: P(X>s+t|X>s) = P(X>t)."},
-  {q:"P(A∩B) = P(A)×P(B) is the condition for:",opts:["Mutually exclusive events","Independent events","Exhaustive events","Conditional events"],ans:1,topic:"Probability Fundamentals",exp:"For independent events, occurrence of one doesn't affect the other. Their joint probability equals the product of individual probabilities. Mutually exclusive events have P(A∩B)=0."},
-  {q:"Bayes' theorem relates:",opts:["Prior and posterior probabilities","Mean and variance","Sample size and p-value","Accuracy and recall"],ans:0,topic:"Probability Fundamentals",exp:"Bayes: P(A|B) = P(B|A)×P(A)/P(B). It updates prior belief P(A) given evidence B to get posterior P(A|B). Foundation of Naive Bayes classifiers."},
-  {q:"Two events A and B are mutually exclusive. Which statement must be true?",opts:["P(A)+P(B)=1","P(A∩B)=0","P(A|B)=P(A)","P(A∪B)=P(A)×P(B)"],ans:1,topic:"Probability Fundamentals",exp:"Mutually exclusive means both cannot happen simultaneously, so P(A∩B)=0. Note: mutually exclusive does NOT mean independent — in fact they can't be independent (unless P=0)."},
-  {q:"The complement rule states that P(A') equals:",opts:["P(A)","1-P(A)","1+P(A)","P(A)/P(B)"],ans:1,topic:"Probability Fundamentals",exp:"The sample space is exhaustive: P(A) + P(A') = 1, so P(A') = 1 - P(A). This is useful when calculating 'at least one' probabilities by computing 1 minus 'none'."},
-  {q:"A fair die is rolled. P(getting a prime number) is:",opts:["1/6","2/6","3/6","4/6"],ans:2,topic:"Probability Fundamentals",exp:"Primes on a die: 2, 3, 5 — that's 3 outcomes out of 6. P = 3/6 = 1/2. Note: 1 is not prime, 4 and 6 are composite."},
-  {q:"What does the p-value in hypothesis testing represent?",opts:["Probability the null hypothesis is true","Probability of observing extreme data assuming null is true","Confidence level of the test","Power of the test"],ans:1,topic:"Hypothesis Testing",exp:"p-value = P(observing data as extreme or more extreme | H₀ is true). If p < α (significance level), we reject H₀. A small p-value means the observed data is unlikely under the null."},
-  {q:"A t-test is preferred over a z-test when:",opts:["Population σ is known","Sample size > 30","Population σ is unknown and n is small","We have categorical data"],ans:2,topic:"Hypothesis Testing",exp:"When population standard deviation σ is unknown and sample size is small (typically n<30), we use the t-distribution which has heavier tails to account for extra uncertainty in estimating σ."},
-  {q:"ANOVA is used to compare means across:",opts:["Exactly two groups","Three or more groups","Proportions","Variances only"],ans:1,topic:"Hypothesis Testing",exp:"Analysis of Variance (ANOVA) compares means across 3+ groups simultaneously, avoiding the multiple comparison problem that arises from running many t-tests (which inflates Type I error)."},
-  {q:"A Type I error (false positive) means:",opts:["Failing to reject a false H₀","Rejecting a true H₀","Accepting a false H₀","Correct decision"],ans:1,topic:"Hypothesis Testing",exp:"Type I error: rejecting H₀ when it's actually true (false alarm). Probability = α (significance level). Type II error: failing to reject H₀ when it's false. Its probability is β."},
-  {q:"The Chi-square test is used to examine:",opts:["Mean differences","Variance equality","Relationships between categorical variables","Correlation of continuous variables"],ans:2,topic:"Hypothesis Testing",exp:"Chi-square tests independence between categorical variables. It compares observed vs expected frequencies. Also used for goodness-of-fit testing."},
-  {q:"The Central Limit Theorem states that sample means:",opts:["Are always normally distributed","Approach normal distribution as n increases regardless of population","Equal population mean exactly","Have zero variance with large n"],ans:1,topic:"Statistical Inference",exp:"CLT: As sample size n→∞, the distribution of sample means approaches Normal(μ, σ²/n) regardless of the original population distribution. This justifies many inferential methods."},
-  {q:"A 95% confidence interval means:",opts:["95% chance the parameter is in this specific interval","95% of samples would produce intervals containing the true parameter","The data has 5% errors","The test has 95% power"],ans:1,topic:"Statistical Inference",exp:"Frequentist interpretation: if we repeated sampling many times, 95% of constructed intervals would contain the true population parameter. The specific interval either does or doesn't contain it."},
-  {q:"Standard error of the mean equals:",opts:["σ/n","σ/√n","σ×√n","σ²/n"],ans:1,topic:"Statistical Inference",exp:"SE = σ/√n. Standard error measures variability of sample means, not individual observations. Larger n gives smaller SE, meaning more precise estimates of the population mean."},
-  {q:"Increasing sample size while other factors are fixed:",opts:["Widens the confidence interval","Narrows the confidence interval","Has no effect on confidence interval","Doubles the standard error"],ans:1,topic:"Statistical Inference",exp:"Larger n → smaller SE (σ/√n) → narrower confidence interval → more precise estimate. This is why larger studies give more reliable conclusions."},
-  {q:"In KNN classification, when one feature has much larger values than others, you should:",opts:["Increase K","Use Manhattan distance only","Scale the features","Remove the large feature"],ans:2,topic:"KNN",exp:"KNN uses distance metrics. Without scaling, features with large values dominate distance calculations. StandardScaler or MinMaxScaler ensures all features contribute equally to distance."},
-  {q:"What happens if K is set too small in KNN?",opts:["Underfitting occurs","Overfitting to noise","Decision boundary becomes linear","All points are misclassified"],ans:1,topic:"KNN",exp:"Small K (e.g., K=1) makes the model very sensitive to individual data points including noise, leading to overfitting. The decision boundary is irregular. Large K over-smooths, causing underfitting."},
-  {q:"KNN is a _____ learning algorithm:",opts:["Eager","Lazy","Parametric","Linear"],ans:1,topic:"KNN",exp:"KNN is 'lazy' — it doesn't build an explicit model during training. It stores all training data and only computes at prediction time, making training O(1) but prediction O(n)."},
-  {q:"The optimal value of K in KNN is typically found by:",opts:["Setting K=1 always","Using cross-validation","Taking K=sqrt(n)","Trial and error with training data only"],ans:1,topic:"KNN",exp:"Cross-validation (especially k-fold CV) evaluates different K values on validation sets, selecting the K that gives best generalization. Using only training data would favor K=1 (perfect training accuracy)."},
-  {q:"In simple linear regression, the slope coefficient represents:",opts:["The y-intercept","Change in y per unit change in x","Correlation coefficient","R-squared value"],ans:1,topic:"Linear Regression",exp:"The slope β₁ = Δy/Δx: for every 1-unit increase in the independent variable x, the predicted y changes by β₁ units. The sign indicates direction; magnitude indicates strength."},
-  {q:"R-squared (coefficient of determination) measures:",opts:["Correlation between residuals","Proportion of variance in y explained by the model","Mean squared error","Number of correct predictions"],ans:1,topic:"Linear Regression",exp:"R² ranges from 0 to 1. R²=1 means perfect fit; R²=0 means the model explains no variance. R² = 1 - SS_res/SS_tot. It's not ideal for model comparison with different feature counts (use Adjusted R²)."},
-  {q:"Which of the following is an assumption of linear regression?",opts:["Residuals are normally distributed","Features are binary","Outcome is categorical","No relationship between X and y"],ans:0,topic:"Linear Regression",exp:"LINEAR regression assumes: linearity, independence, homoscedasticity (constant variance), and normality of residuals. Violation of these doesn't prevent fitting but invalidates inference."},
-  {q:"The sigmoid function in logistic regression maps outputs to:",opts:["(-∞, +∞)","(0, 1)","(0, ∞)","(-1, 1)"],ans:1,topic:"Logistic Regression",exp:"σ(z) = 1/(1+e^(-z)) always outputs values between 0 and 1, interpretable as probabilities. At z=0, σ=0.5. As z→+∞, σ→1; as z→-∞, σ→0."},
-  {q:"Logistic regression is used for:",opts:["Continuous output prediction","Binary and multi-class classification","Clustering","Dimensionality reduction"],ans:1,topic:"Logistic Regression",exp:"Despite 'regression' in the name, logistic regression is a classification algorithm. It predicts class probabilities using the sigmoid (binary) or softmax (multi-class) function."},
-  {q:"For a fraud detection model with high accuracy but poor recall on fraud cases, which metric should be prioritized?",opts:["Accuracy","Precision only","Precision and Recall (F1)","Mean Squared Error"],ans:2,topic:"Evaluation Metrics",exp:"With class imbalance (most transactions legitimate), accuracy is misleading. Precision (TP/(TP+FP)) and Recall (TP/(TP+FN)) from the confusion matrix better capture fraud detection performance. F1 balances both."},
-  {q:"A confusion matrix with TP=90, FP=10, FN=5, TN=895 gives precision of:",opts:["90%","94.7%","95.2%","90.9%"],ans:1,topic:"Evaluation Metrics",exp:"Precision = TP/(TP+FP) = 90/(90+10) = 90/100 = 0.90 = 90%. Wait — recalculating: 90/(90+10)=90%. Actually option A is 90%. But 94.7% = 90/(90+5) = TP/(TP+FN) which is Recall. Precision = 90%."},
-  {q:"ROC-AUC of 0.5 indicates:",opts:["Perfect classifier","Random guessing","50% accuracy","Overfitting"],ans:1,topic:"Evaluation Metrics",exp:"AUC=1.0 is perfect. AUC=0.5 means the model performs no better than random guessing (the ROC curve lies on the diagonal). AUC<0.5 means worse than random (predictions are systematically wrong)."},
-  {q:"Recall (sensitivity) is defined as:",opts:["TP/(TP+FP)","TP/(TP+FN)","TN/(TN+FP)","TP/(TP+FP+TN+FN)"],ans:1,topic:"Evaluation Metrics",exp:"Recall = TP/(TP+FN) = True Positives / All Actual Positives. It measures 'of all actual positive cases, how many did we catch?' Critical in medical diagnosis, fraud detection."},
-  {q:"Feature scaling is NOT necessary for which algorithm?",opts:["KNN","SVM","Logistic Regression","Decision Trees"],ans:3,topic:"ML Pipeline",exp:"Decision trees split on thresholds, not distances or gradients. The order/scale of feature values doesn't matter — only their relative ordering for finding splits. KNN, SVM, and logistic regression all benefit from scaling."},
-  {q:"In scikit-learn, the correct order is:",opts:["fit_transform on test, transform on train","fit on train, transform on both","fit_transform on both","fit on test, transform on train"],ans:1,topic:"ML Pipeline",exp:"Always fit on training data only (learn parameters like mean, std), then transform both train and test. Fitting on test data causes data leakage — the model 'knows' about test distribution."},
-  {q:"Cross-validation helps to:",opts:["Increase training data","Assess model generalization and tune hyperparameters","Remove outliers","Increase model complexity"],ans:1,topic:"ML Pipeline",exp:"K-fold CV splits data into k subsets, training k times each with different validation fold. Gives reliable performance estimate and helps select hyperparameters without test set contamination."},
-  {q:"Gradient descent updates parameters by moving in the direction of:",opts:["Steepest ascent","Steepest descent (negative gradient)","Zero gradient","Random direction"],ans:1,topic:"Gradient Descent",exp:"Gradient descent: θ = θ - α×∇L(θ). The negative gradient points downhill on the loss surface. We move opposite to the gradient to minimize loss. Learning rate α controls step size."},
-  {q:"If the learning rate in gradient descent is too large, the model will:",opts:["Converge slowly","Overshoot the minimum and diverge","Always find global minimum","Stop updating"],ans:1,topic:"Gradient Descent",exp:"Large α → large steps → overshoot the minimum → the loss oscillates or diverges. Very small α → very slow convergence. Optimal α balances speed and stability. Adaptive methods (Adam) adjust α automatically."},
-  {q:"Stochastic Gradient Descent (SGD) differs from batch GD in that:",opts:["It uses no learning rate","It updates parameters using one sample at a time","It only works on linear models","It doesn't compute gradients"],ans:1,topic:"Gradient Descent",exp:"Batch GD uses all n samples per update (slow, stable). SGD uses 1 sample (fast, noisy). Mini-batch GD uses a small batch (best of both). SGD's noise can help escape local minima."},
-  {q:"Web scraping must respect:",opts:["Only copyright law","robots.txt rules and rate limits","Nothing, all web data is free","Only API terms"],ans:1,topic:"Data Collection",exp:"Ethical and legal web scraping respects robots.txt (which paths are allowed), rate limits (don't overwhelm servers), terms of service, and copyright. Violating these can result in IP bans or legal issues."},
-  {q:"A 401 HTTP status code from an API means:",opts:["Success","Not Found","Unauthorized","Server Error"],ans:2,topic:"Data Collection",exp:"HTTP status codes: 200=OK, 401=Unauthorized (authentication required), 403=Forbidden, 404=Not Found, 429=Too Many Requests, 500=Internal Server Error. Always check status before processing API responses."},
-  {q:"In EDA, a boxplot helps identify:",opts:["Correlation","Outliers and distribution spread","Missing values","Feature importance"],ans:1,topic:"Data Cleaning & EDA",exp:"Boxplots show median, Q1, Q3, IQR, and whiskers. Points beyond 1.5×IQR from quartiles are shown as outliers. They also reveal skewness and spread without parametric assumptions."},
-  {q:"The best strategy for handling missing values depends on:",opts:["Always removing missing rows","Always using mean imputation","The percentage missing, data type, and missingness mechanism","Only the column name"],ans:2,topic:"Data Cleaning & EDA",exp:"Missing completely at random (MCAR): mean/median imputation OK. Missing at random (MAR): advanced imputation. Missing not at random (MNAR): needs careful handling. High missingness (>50%) → consider dropping column."},
-  {q:"One-hot encoding is used for:",opts:["Ordinal categorical variables","Nominal categorical variables with no natural order","Numerical features","Binary features"],ans:1,topic:"Data Cleaning & EDA",exp:"One-hot creates binary columns for each category. Use for nominal data (colors, cities) where no ordering exists. For ordinal data (low/medium/high), label/ordinal encoding preserves order relationship."},
-  {q:"In supervised learning, the training data must include:",opts:["Only features","Both features and labels","Only labels","Unlabeled data"],ans:1,topic:"ML Fundamentals",exp:"Supervised learning requires (X, y) pairs — input features AND ground truth labels. The model learns to map X→y. Unsupervised learning uses only X to find patterns without labels."},
-  {q:"Overfitting is characterized by:",opts:["High training error, high test error","Low training error, high test error","Low training error, low test error","High training error, low test error"],ans:1,topic:"ML Fundamentals",exp:"Overfitting: model memorizes training data including noise (low training error) but fails to generalize (high test error). Large gap between train and test performance is the diagnostic signal."},
-  {q:"The bias-variance tradeoff states that:",opts:["Low bias always means low variance","Decreasing bias typically increases variance","Both can be minimized simultaneously","Variance only depends on data size"],ans:1,topic:"ML Fundamentals",exp:"Simple models have high bias (underfitting) but low variance. Complex models have low bias but high variance (overfitting). The optimal model balances both. Regularization, ensembles, and cross-validation help manage this tradeoff."}
+// ════════════════════════════════════════
+//  CONSTANTS
+// ════════════════════════════════════════
+const TT    = 45;       // seconds per question
+const CIRC  = 113.1;    // 2π×18  timer ring circumference
+const SCIRC = 326.73;   // 2π×52  score ring circumference
+
+// ════════════════════════════════════════
+//  QUESTION BANK  (60 questions)
+// ════════════════════════════════════════
+const QUESTIONS = [
+  // ── LINEAR ALGEBRA ──
+  {q:"Dot product of [1,2,3] and [4,5,6]?",opts:["14","32","21","28"],a:1,t:"Linear Algebra",
+   e:"1×4+2×5+3×6 = 4+10+18 = 32. Dot product sums paired multiplications into one scalar."},
+  {q:"If A is (m×n), B must be shape ___ for A×B to be valid:",opts:["(m×p)","(n×p)","(p×m)","(m×n)"],a:1,t:"Linear Algebra",
+   e:"Columns of A (n) must equal rows of B → B must be (n×p); result is (m×p)."},
+  {q:"Transpose of a matrix swaps:",opts:["Rows become columns","Values with negatives","Diagonal with zeros","Columns with diagonals"],a:0,t:"Linear Algebra",
+   e:"Transpose swaps rows ↔ columns. If A is (m×n), Aᵀ is (n×m)."},
+  {q:"Two orthogonal vectors have dot product equal to:",opts:["1","-1","0","Undefined"],a:2,t:"Linear Algebra",
+   e:"Orthogonal = 90°. cos(90°)=0, so dot product = |A||B|cos(θ) = 0."},
+  {q:"A unit vector has magnitude:",opts:["0","Infinity","1","Depends on dimension"],a:2,t:"Linear Algebra",
+   e:"Unit vector has magnitude 1. To normalize: v̂ = v/|v|. Represents direction only."},
+  {q:"Eigenvalue equation is defined as:",opts:["Av=λv","Av=v/λ","A=vλ","λv=A/v"],a:0,t:"Linear Algebra",
+   e:"Av=λv: eigenvectors only scale (not rotate) under A. Foundation of PCA."},
+  {q:"Matrix determinant = 0 implies the matrix is:",opts:["Invertible","Singular (non-invertible)","Diagonal","Symmetric"],a:1,t:"Linear Algebra",
+   e:"det=0 → singular → no inverse. Columns are linearly dependent."},
+
+  // ── PROBABILITY ──
+  {q:"P(A∩B)=P(A)×P(B) when A and B are:",opts:["Mutually exclusive","Independent","Exhaustive","Complementary"],a:1,t:"Probability",
+   e:"Independence: P(A∩B)=P(A)×P(B). Mutually exclusive events have P(A∩B)=0."},
+  {q:"Bayes' theorem calculates:",opts:["Prior probability","Posterior probability given evidence","Only joint probability","Marginal probability"],a:1,t:"Probability",
+   e:"P(A|B)=P(B|A)×P(A)/P(B). Updates prior P(A) with evidence B to get posterior P(A|B)."},
+  {q:"P(getting a prime) on a fair die:",opts:["1/6","2/6","3/6","4/6"],a:2,t:"Probability",
+   e:"Primes on a die: {2,3,5} → 3 faces. P=3/6=1/2. Note: 1 is NOT prime."},
+  {q:"P(A)=0.6, P(B)=0.5, A and B independent. P(A∩B)=?",opts:["0.30","0.55","0.10","1.10"],a:0,t:"Probability",
+   e:"Independent: P(A∩B)=P(A)×P(B)=0.6×0.5=0.30."},
+  {q:"The complement rule states P(A')=:",opts:["P(A)","1-P(A)","1+P(A)","P(A)/2"],a:1,t:"Probability",
+   e:"P(A)+P(A')=1, so P(A')=1-P(A). Useful for 'at least one' problems."},
+
+  // ── DISTRIBUTIONS ──
+  {q:"Which distribution models successes in n fixed independent trials?",opts:["Poisson","Normal","Binomial","Exponential"],a:2,t:"Distributions",
+   e:"Binomial: P(X=k)=C(n,k)×pᵏ×(1-p)^(n-k). Models binary outcomes over n trials."},
+  {q:"Poisson distribution models:",opts:["Binary outcomes","Event counts in a fixed interval","Continuous heights","Equal-likelihood outcomes"],a:1,t:"Distributions",
+   e:"Poisson models count of events in fixed time/space at constant average rate λ."},
+  {q:"PMF (Probability Mass Function) is used for:",opts:["Continuous variables","Discrete variables","Normal distributions","All distributions"],a:1,t:"Distributions",
+   e:"PMF assigns probabilities to individual discrete values. Continuous uses PDF."},
+  {q:"~95% of normal distribution data falls within:",opts:["1σ","2σ","3σ","0.5σ"],a:1,t:"Distributions",
+   e:"68-95-99.7 rule: 68% within 1σ, 95% within 2σ, 99.7% within 3σ."},
+  {q:"Exponential distribution models:",opts:["Successes in trials","Event counts","Waiting time between events","Categorical outcomes"],a:2,t:"Distributions",
+   e:"Exponential models inter-arrival times in a Poisson process. Has memoryless property."},
+  {q:"If X~N(μ,σ²), the standardized variable Z equals:",opts:["(X-σ)/μ","(X-μ)/σ","X×σ+μ","(X+μ)/σ"],a:1,t:"Distributions",
+   e:"Z=(X-μ)/σ transforms any normal to standard N(0,1)."},
+
+  // ── STATISTICAL INFERENCE ──
+  {q:"Central Limit Theorem: sample means approach normal as:",opts:["Population becomes normal","Sample size increases","Variance decreases","Mean grows"],a:1,t:"Statistical Inference",
+   e:"CLT: as n→∞, sampling distribution of means → Normal(μ, σ²/n), regardless of population shape."},
+  {q:"Standard error of the mean equals:",opts:["σ/n","σ/√n","σ×√n","σ²/n"],a:1,t:"Statistical Inference",
+   e:"SE=σ/√n. Larger n → smaller SE → more precise estimates."},
+  {q:"Increasing sample size (other factors fixed):",opts:["Widens CI","Narrows CI","No effect on CI","Doubles SE"],a:1,t:"Statistical Inference",
+   e:"Larger n → smaller SE → narrower confidence interval. Width ∝ 1/√n."},
+  {q:"95% confidence interval interpretation:",opts:["95% chance μ is in this interval","95% of repeated CIs contain true μ","5% of data excluded","Test has 95% power"],a:1,t:"Statistical Inference",
+   e:"Frequentist: 95% of constructed CIs (in repeated sampling) contain true μ."},
+
+  // ── HYPOTHESIS TESTING ──
+  {q:"p-value in hypothesis testing represents:",opts:["P(H₀ is true)","P(extreme data | H₀ true)","Confidence level","Test power"],a:1,t:"Hypothesis Testing",
+   e:"p-value = P(observing data as extreme or more | H₀ true). NOT the probability H₀ is true."},
+  {q:"T-test is preferred over Z-test when:",opts:["σ is known","n>100","σ unknown, n small","Categorical data"],a:2,t:"Hypothesis Testing",
+   e:"Unknown population σ + small n (<30): use t-distribution with heavier tails."},
+  {q:"ANOVA compares means across:",opts:["Exactly 2 groups","3 or more groups","Proportions only","Variances only"],a:1,t:"Hypothesis Testing",
+   e:"ANOVA tests H₀: all group means equal. F = between-group variance / within-group variance."},
+  {q:"Type I error (α) is:",opts:["Missing a real effect","Rejecting a TRUE null","Accepting a false null","Correct decision"],a:1,t:"Hypothesis Testing",
+   e:"Type I = false positive = rejecting H₀ when true. Probability = α."},
+  {q:"Chi-square test examines:",opts:["Mean differences","Variance equality","Relationships between categorical variables","Continuous correlation"],a:2,t:"Hypothesis Testing",
+   e:"Chi-square tests independence between categoricals. χ²=Σ(O-E)²/E."},
+
+  // ── KNN ──
+  {q:"In KNN without scaling: feature A is 0-100, feature B is 0-1. Effect:",opts:["Both contribute equally","Feature A dominates distances","K adjusts automatically","Model becomes linear"],a:1,t:"KNN",
+   e:"Distance²=(x₁-y₁)²+(x₂-y₂)². A's large range overwhelms B's small range."},
+  {q:"KNN prediction time complexity on n training samples:",opts:["O(1)","O(log n)","O(n)","O(n²)"],a:2,t:"KNN",
+   e:"KNN computes distance to all n training points per prediction: O(n). Training is O(1)."},
+  {q:"KNN with K=1: training accuracy is:",opts:["50%","75%","Variable","100%"],a:3,t:"KNN",
+   e:"K=1: each training point is its own nearest neighbor → perfect 100% training accuracy. Severe overfitting."},
+  {q:"Best way to select K in KNN:",opts:["K=1 always","Cross-validation","K=√n rule","Minimize training error"],a:1,t:"KNN",
+   e:"K-fold CV evaluates K on held-out validation sets. Never use training error — always favors K=1."},
+
+  // ── LINEAR REGRESSION ──
+  {q:"R-squared (coefficient of determination) measures:",opts:["Residual correlation","Proportion of variance in y explained by model","MSE","Prediction count"],a:1,t:"Linear Regression",
+   e:"R²=1-SS_res/SS_tot. Range 0-1. R²=1: perfect fit. R²=0: model explains nothing."},
+  {q:"OLS linear regression assumption:",opts:["Binary features","Residuals normally distributed","Categorical outcome","Features must be independent"],a:1,t:"Linear Regression",
+   e:"OLS assumptions (LINE): Linearity, Independence, Normality of residuals, Equal variance."},
+  {q:"Multicollinearity in linear regression means:",opts:["Residuals are correlated","Features are highly correlated with each other","Outcome is non-linear","Model is overfitting"],a:1,t:"Linear Regression",
+   e:"Multicollinearity: predictors highly correlated → unstable coefficient estimates. Detected via VIF."},
+
+  // ── LOGISTIC REGRESSION ──
+  {q:"Sigmoid function output range:",opts:["(-∞,+∞)","(0,1)","(0,∞)","(-1,1)"],a:1,t:"Logistic Regression",
+   e:"σ(z)=1/(1+e^(-z)) ∈ (0,1). Maps any real number to a probability."},
+  {q:"Loss function for logistic regression:",opts:["MSE","Binary Cross-Entropy","Hinge Loss","MAE"],a:1,t:"Logistic Regression",
+   e:"Binary cross-entropy = -[y·log(p)+(1-y)·log(1-p)]. Penalizes confident wrong predictions."},
+
+  // ── EVALUATION METRICS ──
+  {q:"In imbalanced fraud detection, best metric set:",opts:["Accuracy alone","Precision and Recall / F1","MSE and RMSE","R-squared"],a:1,t:"Evaluation Metrics",
+   e:"High accuracy is misleading with class imbalance. Precision & Recall capture minority class performance."},
+  {q:"ROC-AUC = 0.5 means:",opts:["Perfect classifier","Random guessing","50% accuracy","Overfitting"],a:1,t:"Evaluation Metrics",
+   e:"AUC=1.0: perfect. AUC=0.5: no better than random. AUC<0.5: flip labels."},
+  {q:"Recall = TP/(TP+FN) measures:",opts:["Precision of positives","Fraction of actual positives correctly found","Overall accuracy","False positive rate"],a:1,t:"Evaluation Metrics",
+   e:"Recall: of all actual positives, how many did we catch? Critical when false negatives are costly."},
+  {q:"F1-score is the harmonic mean of:",opts:["Accuracy and recall","Precision and recall","TPR and TNR","Sensitivity and specificity"],a:1,t:"Evaluation Metrics",
+   e:"F1=2×(P×R)/(P+R). Harmonic mean penalizes extreme imbalance between P and R."},
+  {q:"Specificity (True Negative Rate) is:",opts:["TP/(TP+FN)","TN/(TN+FP)","TP/(TP+FP)","FP/(FP+TN)"],a:1,t:"Evaluation Metrics",
+   e:"Specificity=TN/(TN+FP): of all actual negatives, how many did we correctly identify?"},
+  {q:"Which metric is threshold-independent?",opts:["Accuracy","Precision","F1-score","ROC-AUC"],a:3,t:"Evaluation Metrics",
+   e:"ROC-AUC evaluates across ALL thresholds. Accuracy, Precision, F1 depend on chosen threshold."},
+
+  // ── ML PIPELINE ──
+  {q:"Feature scaling is NOT required for:",opts:["KNN","SVM","Neural Networks","Decision Trees"],a:3,t:"ML Pipeline",
+   e:"Decision trees split on thresholds — only ordering matters, not scale."},
+  {q:"Correct scikit-learn preprocessing order:",opts:["fit_transform on test, transform on train","fit on train only, transform both","fit_transform on both","fit on test, transform on train"],a:1,t:"ML Pipeline",
+   e:"Fit scaler on TRAINING data only. Apply same transform to both. Fitting on test = data leakage."},
+  {q:"K-fold cross-validation with k=5 trains the model:",opts:["1 time","5 times","10 times","k×n times"],a:1,t:"ML Pipeline",
+   e:"5-fold CV: 5 folds, model trained 5 times, each with a different validation fold."},
+  {q:"Train-test split purpose is to:",opts:["Increase training data","Evaluate model on unseen data","Remove outliers","Balance classes"],a:1,t:"ML Pipeline",
+   e:"Test set held out to give unbiased performance estimate. Using test data during training = data leakage."},
+
+  // ── GRADIENT DESCENT ──
+  {q:"Gradient descent parameter update rule:",opts:["θ=θ+α∇L","θ=θ-α∇L","θ=θ×α∇L","θ=θ/α∇L"],a:1,t:"Gradient Descent",
+   e:"θ=θ-α∇L: move opposite to gradient (downhill on loss surface). α is the learning rate."},
+  {q:"Too large a learning rate causes:",opts:["Slow convergence","Oscillation or divergence","Always finds global minimum","Stops updating"],a:1,t:"Gradient Descent",
+   e:"Large α → large updates → overshoot minimum → loss oscillates or diverges."},
+  {q:"Mini-batch gradient descent advantage:",opts:["Always more accurate","Balances speed and stability","Uses less memory always","No gradient computation"],a:1,t:"Gradient Descent",
+   e:"Mini-batch (32-256 samples): faster than full-batch GD, more stable than SGD. Industry standard."},
+  {q:"Adam optimizer compared to vanilla SGD:",opts:["Slower convergence","Uses fixed learning rate","Adapts learning rate per parameter","Requires more memory always"],a:2,t:"Gradient Descent",
+   e:"Adam maintains per-parameter adaptive learning rates using first and second moment estimates."},
+  {q:"Gradient of a scalar function points in direction of:",opts:["Steepest descent","Steepest ascent","Zero change","Random direction"],a:1,t:"Gradient Descent",
+   e:"∇f points toward steepest ascent. Gradient descent moves in the NEGATIVE gradient direction."},
+
+  // ── DATA COLLECTION ──
+  {q:"HTTP 401 response from an API means:",opts:["Success","Not Found","Unauthorized","Server Error"],a:2,t:"Data Collection",
+   e:"HTTP: 200=OK, 401=Unauthorized, 403=Forbidden, 404=Not Found, 429=Rate Limited, 500=Server Error."},
+  {q:"Which web scraping practice is essential?",opts:["Ignoring robots.txt for speed","Respecting rate limits and robots.txt","Scraping all pages simultaneously","Never use pagination"],a:1,t:"Data Collection",
+   e:"Ethical scraping respects robots.txt, rate limits, and ToS. Violations risk bans and legal action."},
+
+  // ── EDA ──
+  {q:"A boxplot does NOT directly show:",opts:["Median","Outliers","IQR","Exact mean"],a:3,t:"EDA",
+   e:"Boxplots show: median, Q1/Q3, IQR, whiskers (1.5×IQR), outlier points. Exact mean NOT shown."},
+  {q:"One-hot encoding is used for:",opts:["Ordinal variables with clear order","Nominal categorical without natural order","Binary 0/1 features","Continuous numerical features"],a:1,t:"EDA",
+   e:"One-hot: binary indicator columns per category. For nominal data (no natural ordering)."},
+  {q:"Imputing missing values with the mean is problematic when:",opts:["Data is complete","Data is normally distributed","Data has many outliers (skewed)","Sample size is large"],a:2,t:"EDA",
+   e:"Mean imputation is skewed by outliers. Use median for skewed data."},
+
+  // ── ML FUNDAMENTALS ──
+  {q:"In supervised learning, training data must include:",opts:["Only features","Features and labels","Only labels","Unlabeled data"],a:1,t:"ML Fundamentals",
+   e:"Supervised learning requires (X,y) pairs — input features AND ground truth labels."},
+  {q:"Overfitting is characterized by:",opts:["High train + high test error","Low train error, high test error","Low train + low test error","High train error, low test error"],a:1,t:"ML Fundamentals",
+   e:"Overfitting: model memorizes training data (low train error) but fails to generalize (high test error)."},
+  {q:"L2 regularization (Ridge) adds to loss:",opts:["Σ|w|","λΣw²","λ/Σw","Σw³"],a:1,t:"ML Fundamentals",
+   e:"Ridge adds λΣw² to loss. Shrinks weights toward zero. L1 (Lasso) uses Σ|w| — can zero weights out."},
+  {q:"Bias in a machine learning model refers to:",opts:["Random noise in predictions","Error from wrong assumptions (underfitting)","Variance in test predictions","Overfitting to training data"],a:1,t:"ML Fundamentals",
+   e:"Bias = systematic error from oversimplified assumptions → underfitting."},
+  {q:"Which is a hyperparameter (not learned from data)?",opts:["Linear regression coefficients","Neural network weights","K in KNN","Logistic regression intercept"],a:2,t:"ML Fundamentals",
+   e:"Hyperparameters set BEFORE training: K in KNN, learning rate, λ. Parameters are learned from data."},
+  {q:"Bias-variance tradeoff: high variance model is:",opts:["Underfitting","Overfitting","Well-calibrated","Regularized"],a:1,t:"ML Fundamentals",
+   e:"High variance = overfitting: model is too sensitive to training data fluctuations. Reduces generalization."},
+  {q:"Which of these is an unsupervised learning task?",opts:["Spam classification","House price prediction","Customer segmentation","Image recognition"],a:2,t:"ML Fundamentals",
+   e:"Customer segmentation (clustering) uses only X features with no labels — unsupervised learning."}
 ];
 
-let questions=[], current=0, score=0, wrong=0, timerInterval=null, timeLeft=30, answered=false, userAnswers=[];
+// ════════════════════════════════════════
+//  STATE  (single source of truth)
+// ════════════════════════════════════════
+let qs      = [];   // shuffled questions
+let cur     = 0;    // current question index (0-based)
+let answers = [];   // answers[i] = { sel: int (-1=unanswered), ok: bool, done: bool }
+let timerIv = null; // setInterval handle
+let tl      = TT;  // seconds left on current question
+let locked  = false; // true once current question answered/skipped
 
-function shuffle(arr){return [...arr].sort(()=>Math.random()-0.5)}
+// ════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════
+const $  = id => document.getElementById(id);
+const el = id => $(id);  // alias
 
-function startQuiz(){
-  questions=shuffle(ALL_QUESTIONS);
-  current=0; score=0; wrong=0; userAnswers=[];
-  show('quiz-screen');
-  loadQuestion();
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
 }
 
-function show(id){
+function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  $(id).classList.add('active');
 }
 
-function loadQuestion(){
-  if(current>=questions.length){showScore();return}
-  answered=false;
-  const q=questions[current];
-  document.getElementById('q-counter').textContent=`Q ${current+1} / ${questions.length}`;
-  document.getElementById('q-topic').textContent=q.topic;
-  document.getElementById('q-text').textContent=q.q;
-  document.getElementById('progress-bar').style.width=((current/questions.length)*100)+'%';
-  const opts=document.getElementById('options');
-  const letters=['A','B','C','D'];
-  opts.innerHTML=q.opts.map((o,i)=>`<div class="opt" id="opt-${i}" onclick="selectOpt(${i})"><span class="opt-letter">${letters[i]}</span><span>${o}</span></div>`).join('');
-  document.getElementById('feedback').className='feedback';
-  document.getElementById('feedback').innerHTML='';
-  document.getElementById('next-btn').style.display='none';
-  startTimer();
+// ════════════════════════════════════════
+//  TICKER — always computed from answers[]
+// ════════════════════════════════════════
+function updateTicker(){
+  let sc=0, wr=0, sk=0;
+  for(const a of answers){
+    if(!a.done) continue;
+    if(a.ok)          sc++;
+    else if(a.sel>=0) wr++;
+    else              sk++;  // timed out / skipped
+  }
+  const answered = sc + wr;
+  const remaining = answers.filter(a=>!a.done).length;
+  $('t-sc').textContent  = sc;
+  $('t-wr').textContent  = wr;
+  $('t-acc').textContent = answered ? Math.round(sc/answered*100)+'%' : '—';
+
+  // Update Total Score Button
+  $('ts-live').textContent = sc;
+
+  // Update jump badges
+  const doneCount   = answers.filter(a => a.done).length;
+  const unDoneCount = answers.filter(a => !a.done).length;
+  $('jb-ans-count').textContent = doneCount;
+  $('jb-un-count').textContent  = unDoneCount;
+  $('jump-ans-btn').disabled    = (doneCount === 0);
+  $('jump-un-btn').disabled     = (unDoneCount === 0);
 }
 
+// ════════════════════════════════════════
+//  START
+// ════════════════════════════════════════
+function startQuiz(){
+  qs      = shuffle(QUESTIONS);
+  cur     = 0;
+  answers = qs.map(()=>({ sel:-1, ok:false, done:false }));
+  locked  = false;
+  $('live-ticker').style.display    = 'flex';
+  $('total-score-btn').style.display = 'flex';
+  updateTicker();
+  buildSegs();
+  showScreen('quiz-screen');
+  loadQ();
+}
+
+// ════════════════════════════════════════
+//  SEGMENT BAR
+// ════════════════════════════════════════
+function buildSegs(){
+  $('seg-track').innerHTML = qs.map((_,i)=>`<div class="seg" id="seg-${i}"></div>`).join('');
+}
+
+function refreshSegs(){
+  for(let i=0;i<qs.length;i++){
+    const el=$('seg-'+i);
+    if(!el) continue;
+    el.className = 'seg';
+    if(answers[i].done){
+      // Show result color regardless of being current
+      if(answers[i].ok)          el.classList.add('sc');
+      else if(answers[i].sel>=0) el.classList.add('sw');
+      else                       el.classList.add('ss');
+    } else if(i===cur){
+      // Only show yellow pulse on current unanswered question
+      el.classList.add('cur');
+    }
+  }
+}
+
+// ════════════════════════════════════════
+//  LOAD QUESTION
+// ════════════════════════════════════════
+function loadQ(){
+  if(cur >= qs.length){ showScore(); return; }
+
+  clearInterval(timerIv);
+
+  const q = qs[cur];
+  const n = cur + 1;
+  const L = ['A','B','C','D'];
+  const ans = answers[cur];
+
+  // ── Header ──
+  $('q-counter').textContent = `Q ${String(n).padStart(2,'0')} / ${qs.length}`;
+  $('q-topic').textContent   = q.t;
+  $('q-num').textContent     = `// QUESTION ${String(n).padStart(2,'0')}`;
+  $('q-text').textContent    = q.q;
+
+  // ── Progress ──
+  const pct = (cur/qs.length)*100;
+  $('progress-bar').style.width = pct+'%';
+  $('pct-bar').style.width      = pct+'%';
+  $('pbl-val').textContent      = Math.round(pct)+'%';
+
+  // ── Options ──
+  $('options').innerHTML = q.opts.map((o,i)=>`
+    <button class="opt" id="opt-${i}" onclick="pick(${i})">
+      <span class="opt-letter">[${L[i]}]</span><span>${o}</span>
+    </button>`).join('');
+
+  // ── Restore state if previously answered ──
+  if(ans.done){
+    locked = true;
+    lockOptions();
+    $('opt-'+q.a).classList.add('correct');
+    if(ans.sel >= 0 && ans.sel !== q.a)
+      $('opt-'+ans.sel).classList.add('wrong');
+    showFeedback(ans.ok, q, ans.sel===-1);
+    setTimerDisplay(0);  // show as expired
+  } else {
+    locked = false;
+    $('feedback').className = 'feedback';
+    $('fb-lbl').textContent = '';
+    $('fb-txt').textContent = '';
+    startTimer();
+  }
+
+  // ── Nav buttons ──
+  $('btn-prev').disabled       = (cur === 0);
+  $('btn-next').textContent    = (cur === qs.length-1) ? 'FINISH  ✓' : 'NEXT ›';
+
+  refreshSegs();
+}
+
+// ════════════════════════════════════════
+//  TIMER
+// ════════════════════════════════════════
 function startTimer(){
-  clearInterval(timerInterval);
-  timeLeft=30;
-  updateTimerDisplay();
-  timerInterval=setInterval(()=>{
-    timeLeft--;
-    updateTimerDisplay();
-    if(timeLeft<=0){clearInterval(timerInterval);autoSkip();}
-  },1000);
+  tl = TT;
+  setTimerDisplay(tl);
+  timerIv = setInterval(()=>{
+    tl--;
+    setTimerDisplay(tl);
+    if(tl <= 0){ clearInterval(timerIv); autoSkip(); }
+  }, 1000);
 }
 
-function updateTimerDisplay(){
-  const el=document.getElementById('timer');
-  el.textContent=`0:${String(timeLeft).padStart(2,'0')}`;
-  el.className=timeLeft<=10?'timer danger':'timer';
+function setTimerDisplay(t){
+  const pct = Math.max(t,0)/TT;
+  const off  = 113.1*(1-pct);
+  const dng  = t <= 10;
+  $('ring-fg').style.strokeDashoffset = off;
+  $('ring-fg').style.stroke = dng ? '#ef4444' : 'var(--accent)';
+  $('timer-text').textContent = `0:${String(Math.max(t,0)).padStart(2,'0')}`;
+  $('timer-text').className   = 'timer-text'+(dng?' dng':'');
+  $('time-bar').style.width   = (pct*100)+'%';
+  $('time-bar').className     = 'bar-fill bar-time'+(dng?' dng':'');
+  $('tbl-val').textContent    = Math.max(t,0)+'s';
+  $('tbl-val').className      = 'tbl-val'+(dng?' dng':'');
 }
 
+// ════════════════════════════════════════
+//  AUTO-SKIP (timer expired)
+// ════════════════════════════════════════
 function autoSkip(){
-  if(answered)return;
-  answered=true;
-  userAnswers.push({q:questions[current],selected:-1,correct:false});
-  const q=questions[current];
-  document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
-  document.getElementById(`opt-${q.ans}`).classList.add('correct');
-  showFeedback(false,q);
-  document.getElementById('next-btn').style.display='block';
+  if(locked) return;
+  locked = true;
+  // Record as timed-out (sel=-1, ok=false)
+  answers[cur] = { sel:-1, ok:false, done:true };
+  // Show correct answer
+  lockOptions();
+  $('opt-'+qs[cur].a).classList.add('correct');
+  showFeedback(false, qs[cur], true);
+  refreshSegs();
+  updateTicker();
 }
 
-function selectOpt(i){
-  if(answered)return;
-  answered=true;
-  clearInterval(timerInterval);
-  const q=questions[current];
-  const correct=i===q.ans;
-  if(correct)score++;else wrong++;
-  userAnswers.push({q,selected:i,correct});
-  document.querySelectorAll('.opt').forEach(o=>o.classList.add('disabled'));
-  document.getElementById(`opt-${q.ans}`).classList.add('correct');
-  if(!correct)document.getElementById(`opt-${i}`).classList.add('wrong');
-  showFeedback(correct,q);
-  document.getElementById('next-btn').style.display='block';
+// ════════════════════════════════════════
+//  PICK
+// ════════════════════════════════════════
+function pick(i){
+  if(locked) return;
+  locked = true;
+  clearInterval(timerIv);
+
+  const q  = qs[cur];
+  const ok = (i === q.a);
+  answers[cur] = { sel:i, ok, done:true };
+
+  lockOptions();
+  $('opt-'+q.a).classList.add('correct');
+  if(!ok) $('opt-'+i).classList.add('wrong');
+  showFeedback(ok, q, false);
+  refreshSegs();
+  updateTicker();
 }
 
-function showFeedback(correct,q){
-  const fb=document.getElementById('feedback');
-  fb.className='feedback show '+(correct?'correct-fb':'wrong-fb');
-  fb.innerHTML=`<strong>${correct?'Correct!':'Incorrect.'}</strong> ${q.exp}`;
+function lockOptions(){
+  document.querySelectorAll('.opt').forEach(o=>{ o.setAttribute('disabled',''); });
 }
 
-function nextQuestion(){
-  current++;
-  loadQuestion();
+// ════════════════════════════════════════
+//  FEEDBACK
+// ════════════════════════════════════════
+function showFeedback(ok, q, skip){
+  const fb = $('feedback');
+  fb.className = 'feedback show '+(skip?'sfb':ok?'cfb':'wfb');
+  $('fb-lbl').textContent = skip ? '// TIME EXPIRED' : ok ? '// CORRECT ✓' : '// INCORRECT ✗';
+  $('fb-txt').textContent = q.e;
 }
 
+// ════════════════════════════════════════
+//  NEXT
+// ════════════════════════════════════════
+function nextQ(){
+  clearInterval(timerIv);
+  // If not yet answered, mark as skipped
+  if(!locked){
+    locked = true;
+    answers[cur] = { sel:-1, ok:false, done:true };
+    refreshSegs();
+    updateTicker();
+  }
+  cur++;
+  loadQ();
+}
+
+// ════════════════════════════════════════
+//  PREVIOUS
+// ════════════════════════════════════════
+function prevQ(){
+  if(cur <= 0) return;
+  clearInterval(timerIv);
+  // If current unanswered, mark skipped before going back
+  if(!locked){
+    locked = true;
+    answers[cur] = { sel:-1, ok:false, done:true };
+  }
+  cur--;
+  loadQ();
+}
+
+// ════════════════════════════════════════
+//  SCORE SCREEN
+// ════════════════════════════════════════
 function showScore(){
-  clearInterval(timerInterval);
-  show('score-screen');
-  const pct=Math.round((score/questions.length)*100);
-  document.getElementById('final-score-pct').textContent=pct+'%';
-  const skipped=questions.length-score-wrong;
-  document.getElementById('s-correct').textContent=score;
-  document.getElementById('s-wrong').textContent=wrong;
-  document.getElementById('s-skipped').textContent=skipped;
-  let title,msg;
-  if(pct>=80){title='Excellent work!';msg='You have a strong grasp of ML fundamentals.';}
-  else if(pct>=60){title='Good job!';msg='Review the topics you missed and try again.';}
-  else{title='Keep practicing!';msg='Go through the syllabus materials and retake the quiz.';}
-  document.getElementById('result-title').textContent=title;
-  document.getElementById('result-msg').textContent=msg;
-  document.getElementById('review-section').style.display='none';
+  clearInterval(timerIv);
+  $('live-ticker').style.display      = 'none';
+  $('total-score-btn').style.display  = 'none';
+  document.getElementById('score-overlay').classList.remove('show');
+
+  let sc=0, wr=0, sk=0;
+  for(const a of answers){
+    if(!a.done || a.sel===-1) sk++;
+    else if(a.ok)             sc++;
+    else                      wr++;
+  }
+  const total = qs.length;
+  const pct   = Math.round(sc/total*100);
+  const rank  = pct>=90?'S+':pct>=80?'A':pct>=70?'B':pct>=60?'C':pct>=50?'D':'F';
+
+  $('final-pct').textContent = pct+'%';
+  $('s-cor').textContent     = sc;
+  $('s-wr').textContent      = wr;
+  $('s-sk').textContent      = sk;
+  $('bk-pts').textContent    = sc;
+  $('bk-acc').textContent    = pct+'%';
+  $('bk-rank').textContent   = rank;
+
+  let title, msg;
+  if(pct>=80){      title='// SYSTEM: ELITE';  msg='Neural pathways optimized. ML foundations mastered.'; }
+  else if(pct>=60){ title='// SYSTEM: PASS';   msg='Solid foundation. Review flagged topics for mastery.'; }
+  else{             title='// SYSTEM: RETRY';  msg='Recalibrate and reboot. Review syllabus carefully.'; }
+  $('result-title').textContent = title;
+  $('result-msg').textContent   = msg;
+
+  const col = pct>=80?'#10b981':pct>=60?'#f59e0b':'#ef4444';
+  setTimeout(()=>{
+    const fg = $('sc-fg');
+    fg.style.strokeDashoffset = SCIRC*(1-pct/100);
+    fg.style.stroke           = col;
+    $('final-pct').style.color = col;
+  }, 200);
+
+  $('review-section').style.display = 'none';
+  showScreen('score-screen');
 }
 
+// ════════════════════════════════════════
+//  REVIEW
+// ════════════════════════════════════════
 function toggleReview(){
-  const sec=document.getElementById('review-section');
-  if(sec.style.display==='none'){
-    sec.style.display='block';
-    const letters=['A','B','C','D'];
-    sec.innerHTML='<h2>Answer Review</h2>'+userAnswers.map((a,i)=>{
-      const sel=a.selected>=0?`Your answer: <strong>${letters[a.selected]}. ${a.q.opts[a.selected]}</strong>`:'<em>Skipped (time up)</em>';
-      const cls=a.correct?'review-correct':'review-wrong';
-      return `<div class="review-item"><div class="review-q">${i+1}. ${a.q.q}</div><div class="review-answer ${cls}">${sel}</div><div class="review-answer review-correct">Correct: ${letters[a.q.ans]}. ${a.q.opts[a.q.ans]}</div><div class="review-exp">${a.q.exp}</div></div>`;
-    }).join('');
-  }else{sec.style.display='none'}
+  const sec = $('review-section');
+  if(sec.style.display === 'block'){ sec.style.display='none'; return; }
+  sec.style.display = 'block';
+
+  const L = ['A','B','C','D'];
+  $('review-list').innerHTML = answers.map((ans,i)=>{
+    const q    = qs[i];
+    const skip = (!ans.done || ans.sel===-1);
+    const cls  = skip ? 'rs' : ans.ok ? 'rc' : 'rw';
+
+    let selLine = '';
+    if(skip){
+      selLine = `<span class="rv-s">⊘ Skipped / Time Expired</span>`;
+    } else if(ans.ok){
+      selLine = `<span class="rv-c">✓ [${L[ans.sel]}] ${q.opts[ans.sel]}</span>`;
+    } else {
+      selLine = `<span class="rv-w">✗ [${L[ans.sel]}] ${q.opts[ans.sel]}</span>`;
+    }
+    const correctLine = (!skip && !ans.ok)
+      ? `<div class="review-ans rv-c">✓ Correct: [${L[q.a]}] ${q.opts[q.a]}</div>` : '';
+
+    return `<div class="review-item ${cls}">
+      <div class="review-q">${i+1}. ${q.q}</div>
+      <div class="review-ans">${selLine}</div>
+      ${correctLine}
+      <div class="review-exp">// ${q.e}</div>
+    </div>`;
+  }).join('');
 }
 
+// ════════════════════════════════════════
+//  TOTAL SCORE OVERLAY
+// ════════════════════════════════════════
+function showScoreOverlay(){
+  let sc=0, wr=0, sk=0;
+  for(const a of answers){
+    if(!a.done) continue;
+    if(a.ok)          sc++;
+    else if(a.sel>=0) wr++;
+    else              sk++;
+  }
+  const answered  = sc + wr;
+  const remaining = answers.filter(a=>!a.done).length;
+  document.getElementById('sp-cor').textContent = sc;
+  document.getElementById('sp-wr').textContent  = wr;
+  document.getElementById('sp-sk').textContent  = sk;
+  document.getElementById('sp-acc').textContent = answered ? Math.round(sc/answered*100)+'%' : '—';
+  document.getElementById('sp-rem').textContent = remaining;
+  document.getElementById('score-overlay').classList.add('show');
+}
+function closeScoreOverlay(e){
+  if(e.target === document.getElementById('score-overlay'))
+    document.getElementById('score-overlay').classList.remove('show');
+}
+
+// ════════════════════════════════════════
+//  JUMP TO ANSWERED / UNANSWERED
+// ════════════════════════════════════════
+function jumpToAnswered(){
+  // Save current unanswered state before jumping
+  if(!locked){
+    locked = true;
+    answers[cur] = { sel:-1, ok:false, done:true };
+    refreshSegs();
+    updateTicker();
+  }
+  clearInterval(timerIv);
+  // Find next answered question (wrap-around)
+  for(let offset=1; offset<=qs.length; offset++){
+    const idx = (cur + offset) % qs.length;
+    if(answers[idx].done){
+      cur = idx;
+      loadQ();
+      return;
+    }
+  }
+}
+function jumpToUnanswered(){
+  // Save current unanswered state before jumping
+  if(!locked){
+    locked = true;
+    answers[cur] = { sel:-1, ok:false, done:true };
+    refreshSegs();
+    updateTicker();
+  }
+  clearInterval(timerIv);
+  // Find next unanswered question (wrap-around)
+  for(let offset=1; offset<=qs.length; offset++){
+    const idx = (cur + offset) % qs.length;
+    if(!answers[idx].done){
+      cur = idx;
+      loadQ();
+      return;
+    }
+  }
+}
+
+// ════════════════════════════════════════
+//  RESTART
+// ════════════════════════════════════════
 function restartQuiz(){
-  document.getElementById('review-section').style.display='none';
-  startQuiz();
+  clearInterval(timerIv);
+  $('live-ticker').style.display      = 'none';
+  $('total-score-btn').style.display  = 'none';
+  document.getElementById('score-overlay').classList.remove('show');
+  $('review-section').style.display = 'none';
+  showScreen('start-screen');
 }
 </script>
+</body>
+</html>
